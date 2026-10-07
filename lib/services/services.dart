@@ -3,7 +3,9 @@ import 'package:flutter/widgets.dart';
 import '../core/core.dart';
 import 'ads_service.dart';
 import 'analytics_service.dart';
+import 'feedback_service.dart';
 import 'iap_service.dart';
+import 'settings.dart';
 import 'share_service.dart';
 import 'storage_service.dart';
 
@@ -19,6 +21,8 @@ class Services extends InheritedWidget {
     required this.analytics,
     required this.iap,
     required this.loadout,
+    required this.settings,
+    required this.feedback,
     this.clock = _systemNow,
     required super.child,
   });
@@ -31,6 +35,12 @@ class Services extends InheritedWidget {
 
   /// The selected cosmetics. Changing it re-themes the app live.
   final ValueNotifier<Loadout> loadout;
+
+  /// Player preferences (sound, haptics, screen shake). Persisted on change.
+  final ValueNotifier<GameSettings> settings;
+
+  /// Sound and haptics for game events.
+  final FeedbackService feedback;
 
   /// Current time. Injected so tests can pin the daily date.
   final DateTime Function() clock;
@@ -49,5 +59,7 @@ class Services extends InheritedWidget {
       analytics != oldWidget.analytics ||
       iap != oldWidget.iap ||
       loadout != oldWidget.loadout ||
+      settings != oldWidget.settings ||
+      feedback != oldWidget.feedback ||
       clock != oldWidget.clock;
 }

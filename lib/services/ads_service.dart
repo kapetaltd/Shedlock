@@ -19,6 +19,12 @@ abstract class AdsService {
   /// Shows an interstitial if one is loaded. Completes with true if shown,
   /// once it has been dismissed.
   Future<bool> showInterstitial();
+
+  /// Whether the law requires a "privacy options" entry in settings (GDPR).
+  Future<bool> privacyOptionsRequired();
+
+  /// Lets the player review or change their ad consent.
+  Future<void> showPrivacyOptions();
 }
 
 /// AdMob via google_mobile_ads, with Google's UMP consent flow.
@@ -125,6 +131,16 @@ class AdMobAdsService implements AdsService {
   }
 
   @override
+  Future<bool> privacyOptionsRequired() async =>
+      await ConsentInformation.instance.getPrivacyOptionsRequirementStatus() ==
+      PrivacyOptionsRequirementStatus.required;
+
+  @override
+  Future<void> showPrivacyOptions() => ConsentForm.showPrivacyOptionsForm((error) {
+        if (error != null) debugPrint('[ads] privacy options: ${error.message}');
+      });
+
+  @override
   Future<bool> showInterstitial() {
     final ad = _interstitial;
     if (ad == null) return Future.value(false);
@@ -178,4 +194,14 @@ class PlaceholderAdsService implements AdsService {
     interstitialsShown++;
     return true;
   }
+
+  /// Tests can flip this to see the settings entry.
+  bool privacyRequired = false;
+  int privacyFormsShown = 0;
+
+  @override
+  Future<bool> privacyOptionsRequired() async => privacyRequired;
+
+  @override
+  Future<void> showPrivacyOptions() async => privacyFormsShown++;
 }

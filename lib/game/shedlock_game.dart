@@ -322,7 +322,11 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
 
   // --- Effects --------------------------------------------------------------
 
+  /// Players can turn shake off (motion sensitivity).
+  bool shakeEnabled = true;
+
   void shake(double seconds, double strength) {
+    if (!shakeEnabled) return;
     _shakeLeft = seconds;
     _shakeStrength = strength;
   }

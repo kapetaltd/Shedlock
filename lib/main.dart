@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'app.dart';
 import 'services/ads_service.dart';
 import 'services/analytics_service.dart';
+import 'services/feedback_service.dart';
 import 'services/iap_service.dart';
 import 'services/session_service.dart';
 import 'services/share_service.dart';
@@ -35,6 +36,8 @@ Future<void> main() async {
 
   await SessionService(storage: storage, analytics: analytics, clock: DateTime.now).start();
   await iap.init();
+  final sound = FlameSoundPlayer();
+  await sound.preload();
 
   runApp(ShedlockApp(
     storage: storage,
@@ -42,6 +45,8 @@ Future<void> main() async {
     share: const NativeShareService(),
     analytics: analytics,
     iap: iap,
+    sound: sound,
+    haptics: const SystemHaptics(),
   ));
 
   // After the first frame: the consent form (where required) and ad

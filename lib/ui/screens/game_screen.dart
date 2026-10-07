@@ -11,6 +11,7 @@ import '../../game/shedlock_game.dart';
 import '../../services/ad_coordinator.dart';
 import '../../services/analytics_service.dart';
 import '../../services/daily_service.dart';
+import '../../services/feedback_service.dart';
 import '../../services/services.dart';
 import '../overlays/game_over_overlay.dart';
 import '../overlays/play_overlays.dart';
@@ -53,6 +54,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   Timer? _autoFinish;
 
   late AdCoordinator _adsCoord;
+  late FeedbackService _feedback;
+  bool _leaving = false;
   late AnalyticsService _analytics;
 
   /// A run is "active" from its first move until it is ended (the player
@@ -88,8 +91,11 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       best: best,
       onDeath: _onDeath,
       onStart: _onRunStart,
+      onEvents: services.feedback.onEvents,
       loadout: services.loadout.value,
-    );
+    )..shakeEnabled = services.settings.value.screenShake;
+    _feedback = services.feedback;
+    _game.countdown.addListener(_onCountdown);
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -113,10 +119,21 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   }
 
   /// Run over → menu or next run: the only place interstitials may appear.
+  /// Guarded so a double tap can't run it twice.
   Future<void> _leaveRun(VoidCallback then) async {
-    await _endRun();
-    await _adsCoord.maybeShowInterstitial();
-    if (mounted) then();
+    if (_leaving) return;
+    _leaving = true;
+    try {
+      await _endRun();
+      await _adsCoord.maybeShowInterstitial();
+      if (mounted) then();
+    } finally {
+      _leaving = false;
+    }
+  }
+
+  void _onCountdown() {
+    if (_game.countdown.value > 0) _feedback.tick();
   }
 
   void _onDeath() {
@@ -165,6 +182,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     _autoFinish?.cancel();
+    _game.countdown.removeListener(_onCountdown);
     _endRun(); // e.g. system back from game over
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();

@@ -41,6 +41,8 @@ dependencies:
   in_app_purchase: ^3.3.1
   firebase_core: ^4.15.0
   firebase_analytics: ^12.6.0
+  flame_audio: ^2.12.2
+  package_info_plus: ^10.2.2
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +54,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -59,6 +63,9 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/audio/
 
   fonts:
     - family: PressStart2P
@@ -95,3 +102,24 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# App icon: generated from assets/icon (see tool/gen_icon.py).
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/icon/icon.png"
+  remove_alpha_ios: true
+  adaptive_icon_background: "#B2C69A"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  min_sdk_android: 21
+
+# Native launch screen in the LCD colour, so there is no white flash.
+#   dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#B2C69A"
+  image: "assets/icon/splash.png"
+  android_12:
+    color: "#B2C69A"
+    image: "assets/icon/icon_foreground.png"
+  web: false
