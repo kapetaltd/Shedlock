@@ -93,6 +93,8 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
     this.best = 0,
     this.onEvents,
     this.onDeath,
+    this.onStart,
+    this.loadout = const Loadout(),
   })  : _session = session,
         previous = session.state;
 
@@ -107,6 +109,17 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
 
   /// Called once when the snake dies.
   final VoidCallback? onDeath;
+
+  /// Called when a run's first move is made.
+  final VoidCallback? onStart;
+
+  /// Cosmetics (snake skin, trail). Purely visual.
+  Loadout loadout;
+
+  /// Cells the tail recently left, with the [animTime] they were left at.
+  /// Drives the trail cosmetic.
+  final List<(GridPos, double)> trail = [];
+  static const double trailSeconds = 0.6;
 
   /// The state before the most recent tick, for interpolation.
   GameState previous;
@@ -179,6 +192,7 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
   void update(double dt) {
     super.update(dt);
     animTime += dt;
+    trail.removeWhere((t) => animTime - t.$2 > trailSeconds);
     _updateShake(dt);
 
     switch (phase.value) {
@@ -203,6 +217,7 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
   bool _step() {
     previous = _session.state;
     final events = _session.tick();
+    if (loadout.trail != Trail.none) _recordTrail();
     effects.handle(events);
     onEvents?.call(events);
     if (_session.isOver) {
@@ -248,6 +263,16 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
   void _start() {
     clock.reset();
     phase.value = PlayPhase.playing;
+    onStart?.call();
+  }
+
+  void _recordTrail() {
+    final now = _session.state;
+    final body = now.snake.toSet();
+    final walls = {for (final w in now.shedWalls) w.pos};
+    for (final p in previous.snake) {
+      if (!body.contains(p) && !walls.contains(p)) trail.add((p, animTime));
+    }
   }
 
   void pauseGame() {
@@ -278,6 +303,7 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
     if (!ok) return false;
     previous = _session.state;
     effects.clear();
+    trail.clear();
     hud.value = HudData.of(_session.state, best);
     _beginCountdown();
     return true;
@@ -288,6 +314,7 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
     _session = session;
     previous = session.state;
     effects.clear();
+    trail.clear();
     clock.reset();
     hud.value = HudData.of(session.state, best);
     phase.value = PlayPhase.waiting;

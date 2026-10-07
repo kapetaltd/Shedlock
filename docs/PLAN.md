@@ -78,6 +78,26 @@ later phases stay consistent.
 - Logic is in `lib/core/daily/`; storage and glue are in
   `lib/services/daily_service.dart`.
 
+## Phase 5 notes (monetisation and analytics)
+- `AdsService` (AdMob: preloading, retry with backoff, UMP consent) is the raw
+  SDK layer. `AdCoordinator` applies the rules (`InterstitialPolicy`) and
+  logs analytics. Interstitials are only requested at run-to-menu moments
+  (PLAY AGAIN / HOME after a finished run), never during play.
+- A "completed run" = the player leaves game over, quits from pause, or a
+  ranked daily is finished. Each one logs `run_end` and counts towards
+  pacing.
+- Sessions: a cold start, or coming back after 30+ minutes in the
+  background. Logged as `game_session_start`, because Firebase reserves
+  `session_start` for its own automatic event.
+- IAP: four non-consumables. Ownership is cached locally and restorable.
+  There is no server-side receipt validation, which is acceptable for
+  cosmetics and Remove Ads.
+- Cosmetics: snake skins, trails and board themes (live palette switch).
+  The free defaults are always available. Items from a pack the player no
+  longer owns fall back to the free ones.
+- Web and tests use `PlaceholderAdsService` + `FakeIapService`. On a device,
+  `--dart-define=FAKE_STORE=true` enables the fake store.
+
 ## Environment notes
 - The cloud container has no `/dev/kvm`, so no Android emulator. UI
   verification uses the Flutter web build in headless Chromium.

@@ -6,6 +6,7 @@ import '../../core/core.dart';
 import '../lcd_palette.dart';
 import '../shedlock_game.dart';
 import '../snake_interpolation.dart';
+import '../snake_skin_painter.dart';
 
 /// Draws the board, obstacles, shed walls, food and snake in the LCD style:
 /// chunky ink blocks with a soft offset shadow over a ghosted pixel grid.
@@ -13,6 +14,7 @@ class BoardComponent extends Component with HasGameReference<ShedlockGame> {
   BoardComponent() : super(priority: 0);
 
   final Paint _fill = Paint();
+  final SnakeSkinPainter _skin = SnakeSkinPainter();
 
   @override
   void render(Canvas canvas) {
@@ -105,6 +107,19 @@ class BoardComponent extends Component with HasGameReference<ShedlockGame> {
       }
     }
 
+    // Trail cosmetic, under the snake.
+    if (!shadowPass && game.loadout.trail != Trail.none) {
+      for (final (pos, t) in game.trail) {
+        _skin.paintTrail(
+          canvas,
+          game.loadout.trail,
+          m.cellRect(pos.x.toDouble(), pos.y.toDouble()),
+          game.animTime - t,
+          ShedlockGame.trailSeconds,
+        );
+      }
+    }
+
     // Snake. Blinks after death.
     if (s.isDead && (game.animTime * 6).floor().isEven) return;
     _drawSnake(canvas, s, snake, col, shadowPass: shadowPass);
@@ -185,38 +200,15 @@ class BoardComponent extends Component with HasGameReference<ShedlockGame> {
     Color Function(Color, [double]) col, {
     required bool shadowPass,
   }) {
-    if (pts.isEmpty) return;
     final m = game.metrics;
-    final cell = m.cell;
-    final inset = cell * 0.08;
-    _fill.color = col(LcdPalette.ink);
-
-    // Bridges between consecutive segments keep the body continuous while
-    // segments slide.
-    final bridgeInset = cell * 0.24;
-    for (var i = 0; i < pts.length - 1; i++) {
-      final a = m.cellRect(pts[i].x, pts[i].y).deflate(bridgeInset);
-      final b = m.cellRect(pts[i + 1].x, pts[i + 1].y).deflate(bridgeInset);
-      if ((pts[i].x - pts[i + 1].x).abs() + (pts[i].y - pts[i + 1].y).abs() <= 1.01) {
-        canvas.drawRect(a.expandToInclude(b), _fill);
-      }
-    }
-    for (var i = 0; i < pts.length; i++) {
-      final shrink = i == pts.length - 1 && pts.length > 1 ? cell * 0.1 : 0.0;
-      canvas.drawRect(m.cellRect(pts[i].x, pts[i].y).deflate(inset * 1.4 + shrink), _fill);
-    }
-
-    // Eyes on the head, facing the heading.
-    if (shadowPass) return;
-    final head = m.cellRect(pts.first.x, pts.first.y);
-    final e = cell * 0.16;
-    final h = s.heading;
-    final fwd = Offset(h.dx * cell * 0.18, h.dy * cell * 0.18);
-    final side = Offset(h.dy.abs() * cell * 0.2, h.dx.abs() * cell * 0.2);
-    _fill.color = LcdPalette.screen;
-    for (final sgn in const [-1.0, 1.0]) {
-      final c = head.center + fwd + side * sgn;
-      canvas.drawRect(Rect.fromCenter(center: c, width: e, height: e), _fill);
-    }
+    _skin.paint(
+      canvas,
+      cells: [for (final p in pts) m.cellRect(p.x, p.y)],
+      cell: m.cell,
+      skin: game.loadout.skin,
+      heading: s.heading,
+      ink: col(LcdPalette.ink),
+      shadowPass: shadowPass,
+    );
   }
 }

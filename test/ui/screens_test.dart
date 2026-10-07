@@ -2,21 +2,16 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:shedlock/core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shedlock/app.dart';
 import 'package:shedlock/game/shedlock_game.dart';
-import 'package:shedlock/services/ads_service.dart';
-import 'package:shedlock/services/share_service.dart';
 import 'package:shedlock/services/storage_service.dart';
 import 'package:shedlock/ui/format.dart';
 import 'package:shedlock/ui/screens/game_screen.dart';
 import 'package:shedlock/ui/screens/home_screen.dart';
 
-Widget app(Widget home, {StorageService? storage}) => ShedlockApp(
-      storage: storage ?? MemoryStorageService(),
-      ads: const PlaceholderAdsService(delay: Duration.zero),
-      share: FakeShareService(),
-      home: home,
-    );
+import 'test_env.dart';
+
+Widget app(Widget home, {MemoryStorageService? storage}) =>
+    TestEnv(storage: storage).app(home);
 
 void main() {
   test('score formatting', () {

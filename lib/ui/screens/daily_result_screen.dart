@@ -52,7 +52,10 @@ class DailyResultScreen extends StatelessWidget {
                   LcdButton(
                     label: 'SHARE',
                     filled: true,
-                    onPressed: () => share.shareText(record.shareText),
+                    onPressed: () {
+                      Services.of(context).analytics.log(Events.dailyShared(record.dailyNumber));
+                      share.shareText(record.shareText);
+                    },
                   ),
                   const SizedBox(height: 14),
                   LcdButton(

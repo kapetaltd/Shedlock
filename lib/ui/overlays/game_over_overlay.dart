@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../game/shedlock_game.dart';
 import '../../services/ads_service.dart';
-import '../../services/services.dart';
+import '../../services/ad_coordinator.dart';
 import '../format.dart';
 import '../theme/lcd_theme.dart';
 import '../widgets/lcd_button.dart';
@@ -52,12 +52,20 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
     super.dispose();
   }
 
+  String? _adMessage;
+
   Future<void> _withAd(RewardedPlacement placement, bool Function() grant) async {
     if (_busy) return;
-    setState(() => _busy = true);
-    final earned = await Services.of(context).ads.showRewarded(placement);
+    setState(() {
+      _busy = true;
+      _adMessage = null;
+    });
+    final earned = await AdCoordinator.of(context).rewarded(placement);
     if (!mounted) return;
-    setState(() => _busy = false);
+    setState(() {
+      _busy = false;
+      if (!earned) _adMessage = 'NO AD RIGHT NOW. TRY AGAIN SOON.';
+    });
     if (earned) grant();
   }
 
@@ -92,6 +100,10 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                   style: pixelStyle(8),
                 ),
                 const SizedBox(height: 24),
+                if (_adMessage != null) ...[
+                  Text(_adMessage!, textAlign: TextAlign.center, style: pixelStyle(8)),
+                  const SizedBox(height: 12),
+                ],
                 if (session.canFreeRewind) ...[
                   LcdButton(
                     label: 'REWIND 3S',

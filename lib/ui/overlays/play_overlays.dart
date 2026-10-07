@@ -98,7 +98,7 @@ class _Panel extends StatelessWidget {
         decoration: BoxDecoration(
           color: LcdPalette.screen,
           border: Border.all(color: LcdPalette.ink, width: 3),
-          boxShadow: const [BoxShadow(color: LcdPalette.shadow, offset: Offset(4, 4))],
+          boxShadow: [BoxShadow(color: LcdPalette.shadow, offset: const Offset(4, 4))],
         ),
         child: child,
       );

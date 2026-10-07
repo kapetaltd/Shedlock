@@ -1,26 +1,30 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shedlock/app.dart';
 import 'package:shedlock/config/app_config.dart';
 import 'package:shedlock/core/core.dart';
 import 'package:shedlock/game/shedlock_game.dart';
-import 'package:shedlock/services/ads_service.dart';
 import 'package:shedlock/services/share_service.dart';
 import 'package:shedlock/services/storage_service.dart';
 import 'package:shedlock/ui/screens/home_screen.dart';
+
+import 'test_env.dart';
 
 /// Daily #3, whatever the configured epoch is.
 final today = AppConfig.dailyEpoch.add(const Duration(days: 2, hours: 12));
 final todayKey = dailyKey(today);
 
-Widget app(MemoryStorageService storage, FakeShareService share, {DateTime? now}) => ShedlockApp(
-      storage: storage,
-      ads: const PlaceholderAdsService(delay: Duration.zero),
-      share: share,
-      clock: () => now ?? today,
-      home: const HomeScreen(),
-    );
+Widget app(MemoryStorageService storage, FakeShareService share, {DateTime? now}) {
+  final env = TestEnv(storage: storage, now: now ?? today);
+  env.share.shared.clear();
+  _lastEnv = env;
+  return env.app(const HomeScreen());
+}
+
+late TestEnv _lastEnv;
+
+/// The share service of the most recent [app].
+FakeShareService get lastShare => _lastEnv.share;
 
 /// Taps [label] and lets the route transition finish.
 Future<void> tapAndSettle(WidgetTester tester, String label) async {
@@ -77,9 +81,16 @@ void main() {
 
     await tester.tap(find.text('SHARE'));
     await tester.pump();
-    expect(share.shared, hasLength(1));
-    expect(share.shared.single, startsWith('Shedlock #3 🐍 '));
-    expect(share.shared.single, endsWith('Shed your tail. Lock your prey.'));
+    expect(lastShare.shared, hasLength(1));
+    expect(lastShare.shared.single, startsWith('Shedlock #3 🐍 '));
+    expect(lastShare.shared.single, endsWith('Shed your tail. Lock your prey.'));
+
+    // Analytics for the ranked run, and never an interstitial on this path.
+    final names = _lastEnv.analytics.names;
+    expect(names, containsAllInOrder(['run_start', 'run_end', 'streak_length', 'daily_shared']));
+    final start = _lastEnv.analytics.events.firstWhere((e) => e.name == 'run_start');
+    expect(start.params['mode'], 'daily_ranked');
+    expect(_lastEnv.ads.interstitialsShown, 0);
 
     await tapAndSettle(tester, 'DONE');
     // Back on the hub: already played, so share or practice.
