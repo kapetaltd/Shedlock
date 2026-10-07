@@ -11,6 +11,7 @@ import '../widgets/logo_art.dart';
 import 'daily_screen.dart';
 import 'game_screen.dart';
 import 'placeholder_screen.dart';
+import 'shop_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -75,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: LcdButton(
                           label: 'SHOP',
                           fontSize: 12,
-                          onPressed: () => _open(const PlaceholderScreen(title: 'SHOP')),
+                          onPressed: () => _open(const ShopScreen()),
                         ),
                       ),
                       const SizedBox(width: 12),

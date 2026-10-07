@@ -21,6 +21,9 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
+        // AdMob app ID. Google's TEST ID: replace with yours before release
+        // (and keep lib/config/monetization_config.dart in sync).
+        manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
         // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`

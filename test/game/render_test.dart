@@ -90,9 +90,9 @@ void main() {
         child: Center(
           child: RepaintBoundary(
             key: key,
-            child: const ColoredBox(
+            child: ColoredBox(
               color: LcdPalette.screen,
-              child: Padding(
+              child: const Padding(
                 padding: EdgeInsets.all(8),
                 child: SliceGrid(slices: SliceKind.values, cell: 40),
               ),

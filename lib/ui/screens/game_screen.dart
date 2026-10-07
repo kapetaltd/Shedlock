@@ -8,6 +8,8 @@ import '../../config/app_config.dart';
 import '../../core/core.dart';
 import '../../game/game_input.dart';
 import '../../game/shedlock_game.dart';
+import '../../services/ad_coordinator.dart';
+import '../../services/analytics_service.dart';
 import '../../services/daily_service.dart';
 import '../../services/services.dart';
 import '../overlays/game_over_overlay.dart';
@@ -50,6 +52,14 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   bool _finishing = false;
   Timer? _autoFinish;
 
+  late AdCoordinator _adsCoord;
+  late AnalyticsService _analytics;
+
+  /// A run is "active" from its first move until it is ended (the player
+  /// leaves game over, quits from pause, or the ranked run is finished).
+  bool _runActive = false;
+  final Stopwatch _runClock = Stopwatch();
+
   bool get _isDaily => widget.mode == GameMode.daily;
 
   RunSession _newSession() => _isDaily
@@ -71,8 +81,42 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       GameMode.endless => services.storage.endlessBest,
       GameMode.daily => _daily.todayRecord?.score ?? 0,
     };
-    _game = ShedlockGame(session: _newSession(), best: best, onDeath: _onDeath);
+    _adsCoord = AdCoordinator.of(context);
+    _analytics = services.analytics;
+    _game = ShedlockGame(
+      session: _newSession(),
+      best: best,
+      onDeath: _onDeath,
+      onStart: _onRunStart,
+      loadout: services.loadout.value,
+    );
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  void _onRunStart() {
+    _runActive = true;
+    _runClock
+      ..reset()
+      ..start();
+    _analytics.log(Events.runStart(widget.mode, ranked: _game.session.ranked));
+  }
+
+  /// Logs run_end and counts the run for ad pacing. Safe to call twice.
+  Future<void> _endRun() async {
+    if (!_runActive) return;
+    _runActive = false;
+    _runClock.stop();
+    await _analytics.log(
+      Events.runEnd(_game.session.result(), realDurationMs: _runClock.elapsedMilliseconds),
+    );
+    await _adsCoord.onRunCompleted();
+  }
+
+  /// Run over → menu or next run: the only place interstitials may appear.
+  Future<void> _leaveRun(VoidCallback then) async {
+    await _endRun();
+    await _adsCoord.maybeShowInterstitial();
+    if (mounted) then();
   }
 
   void _onDeath() {
@@ -95,18 +139,23 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     if (_finishing || !_ranked) return;
     _finishing = true;
     _game.pauseGame();
+    await _endRun();
     final record = await _daily.complete(_game.session.result(), dayKey: dailyKey(_runDate));
+    await _analytics.log(Events.streakLength(_daily.currentStreak));
     if (!mounted) return;
+    // No interstitial here: the next screen is the daily share screen.
     await Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(builder: (_) => DailyResultScreen(record: record)),
     );
   }
 
-  void _playAgain() {
-    // After the ranked attempt, any replay of the daily is practice.
-    _ranked = false;
-    _game.restart(_newSession());
-  }
+  void _playAgain() => _leaveRun(() {
+        // After the ranked attempt, any replay of the daily is practice.
+        _ranked = false;
+        _game.restart(_newSession());
+      });
+
+  void _home() => _leaveRun(() => Navigator.of(context).pop());
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -116,6 +165,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     _autoFinish?.cancel();
+    _endRun(); // e.g. system back from game over
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -160,14 +210,14 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                       : PausePanel(
                           onResume: _game.resumeGame,
                           homeLabel: _ranked ? 'END RUN' : 'HOME',
-                          onHome: _ranked ? _finishRanked : () => Navigator.of(context).pop(),
+                          onHome: _ranked ? _finishRanked : _home,
                         ),
                   PlayPhase.over => GameOverOverlay(
                       game: _game,
                       ranked: _ranked,
                       onEndRun: _finishRanked,
                       onPlayAgain: _playAgain,
-                      onHome: () => Navigator.of(context).pop(),
+                      onHome: _home,
                     ),
                   PlayPhase.playing => const SizedBox.shrink(),
                 },
