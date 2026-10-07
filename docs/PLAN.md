@@ -98,6 +98,28 @@ later phases stay consistent.
 - Web and tests use `PlaceholderAdsService` + `FakeIapService`. On a device,
   `--dart-define=FAKE_STORE=true` enables the fake store.
 
+## Phase 6 notes (polish)
+- Sound: six original effects (eat, shed, lock, death, rewind, countdown
+  tick), synthesised by `tool/gen_sfx.dart` and played through low-latency
+  `flame_audio` pools.
+- Haptics: light on eat, medium on shed and rewind, heavy on lock and death,
+  a selection click when a shed is refused.
+- Settings: sound, haptics and screen shake (motion sensitivity),
+  persisted; privacy options (UMP) shown only where required; restore
+  purchases; how to play; credits.
+- Icon: generated from the logo pixel art (`tool/gen_icon.py`) → launcher
+  icons (adaptive on Android) and a native splash in the LCD colour, so
+  there is no white flash. Display name "Shedlock" on both platforms.
+- Edge cases handled:
+  - pause on any lifecycle change;
+  - home refreshes on resume, so the daily puzzle rolls over at UTC midnight;
+  - double taps between runs are guarded;
+  - system text scale is capped at 1.3x for the pixel font;
+  - corrupt stored data falls back to defaults;
+  - a backwards clock never breaks the streak.
+- Release signing reads `android/key.properties` and falls back to the debug
+  key without it.
+
 ## Environment notes
 - The cloud container has no `/dev/kvm`, so no Android emulator. UI
   verification uses the Flutter web build in headless Chromium.

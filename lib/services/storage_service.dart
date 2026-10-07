@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/core.dart';
+import 'settings.dart';
 
 /// Local persistence. Everything the app stores goes through here so keys
 /// live in one place.
@@ -35,6 +36,9 @@ abstract class StorageService {
   Future<void> setOwnedPacks(Set<Pack> packs);
   Loadout get loadout;
   Future<void> setLoadout(Loadout loadout);
+
+  GameSettings get settings;
+  Future<void> setSettings(GameSettings settings);
 }
 
 class PrefsStorageService implements StorageService {
@@ -54,6 +58,7 @@ class PrefsStorageService implements StorageService {
   static const _kRunsSinceAd = 'runs_since_interstitial';
   static const _kOwned = 'owned_packs';
   static const _kLoadout = 'loadout';
+  static const _kSettings = 'settings';
 
   @override
   int get endlessBest => _prefs.getInt(_kEndlessBest) ?? 0;
@@ -140,6 +145,20 @@ class PrefsStorageService implements StorageService {
 
   @override
   Future<void> setLoadout(Loadout loadout) => _prefs.setString(_kLoadout, jsonEncode(loadout.toJson()));
+
+  @override
+  GameSettings get settings {
+    final raw = _prefs.getString(_kSettings);
+    if (raw == null) return const GameSettings();
+    try {
+      return GameSettings.fromJson((jsonDecode(raw) as Map).cast<String, Object?>());
+    } on Object {
+      return const GameSettings();
+    }
+  }
+
+  @override
+  Future<void> setSettings(GameSettings s) => _prefs.setString(_kSettings, jsonEncode(s.toJson()));
 }
 
 /// In-memory storage for tests.
@@ -197,4 +216,10 @@ class MemoryStorageService implements StorageService {
 
   @override
   Future<void> setLoadout(Loadout l) async => loadout = l;
+
+  @override
+  GameSettings settings = const GameSettings();
+
+  @override
+  Future<void> setSettings(GameSettings s) async => settings = s;
 }

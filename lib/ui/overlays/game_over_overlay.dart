@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../game/shedlock_game.dart';
 import '../../services/ads_service.dart';
 import '../../services/ad_coordinator.dart';
+import '../../services/services.dart';
 import '../format.dart';
 import '../theme/lcd_theme.dart';
 import '../widgets/lcd_button.dart';
@@ -53,6 +54,13 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
   }
 
   String? _adMessage;
+
+  /// Plays the rewind sound when [action] succeeds.
+  bool Function() _withSound(bool Function() action) => () {
+        final ok = action();
+        if (ok) Services.of(context).feedback.rewind();
+        return ok;
+      };
 
   Future<void> _withAd(RewardedPlacement placement, bool Function() grant) async {
     if (_busy) return;
@@ -109,7 +117,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                     label: 'REWIND 3S',
                     sublabel: 'FREE',
                     filled: true,
-                    onPressed: _busy ? null : () => widget.game.rewind(),
+                    onPressed: _busy ? null : () => _withSound(widget.game.rewind)(),
                   ),
                   const SizedBox(height: 12),
                 ] else if (session.canAdRewind) ...[
@@ -119,7 +127,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                     filled: true,
                     onPressed: _busy
                         ? null
-                        : () => _withAd(RewardedPlacement.rewind, widget.game.rewind),
+                        : () => _withAd(RewardedPlacement.rewind, _withSound(widget.game.rewind)),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -129,7 +137,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                     sublabel: 'WATCH AD · KEEP SCORE',
                     onPressed: _busy
                         ? null
-                        : () => _withAd(RewardedPlacement.continueRun, widget.game.continueRun),
+                        : () => _withAd(RewardedPlacement.continueRun, _withSound(widget.game.continueRun)),
                   ),
                   const SizedBox(height: 12),
                 ],

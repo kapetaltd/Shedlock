@@ -10,7 +10,7 @@ import '../widgets/lcd_button.dart';
 import '../widgets/logo_art.dart';
 import 'daily_screen.dart';
 import 'game_screen.dart';
-import 'placeholder_screen.dart';
+import 'settings_screen.dart';
 import 'shop_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +20,26 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // The daily puzzle (and streak) can roll over while the app is in the
+  // background; refresh when coming back.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) setState(() {});
+  }
+
   Future<void> _open(Widget screen) async {
     await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
     if (mounted) setState(() {}); // refresh best score
@@ -84,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: LcdButton(
                           label: 'SETTINGS',
                           fontSize: 12,
-                          onPressed: () => _open(const PlaceholderScreen(title: 'SETTINGS')),
+                          onPressed: () => _open(const SettingsScreen()),
                         ),
                       ),
                     ],

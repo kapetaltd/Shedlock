@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shedlock/app.dart';
 import 'package:shedlock/services/ads_service.dart';
 import 'package:shedlock/services/analytics_service.dart';
+import 'package:shedlock/services/feedback_service.dart';
 import 'package:shedlock/services/iap_service.dart';
 import 'package:shedlock/services/share_service.dart';
 import 'package:shedlock/services/storage_service.dart';
@@ -18,6 +19,8 @@ class TestEnv {
   final share = FakeShareService();
   final analytics = RecordingAnalyticsService();
   late final FakeIapService iap;
+  final sound = RecordingSoundPlayer();
+  final haptics = RecordingHaptics();
   final DateTime? now;
 
   Widget app(Widget home) => ShedlockApp(
@@ -26,6 +29,8 @@ class TestEnv {
         share: share,
         analytics: analytics,
         iap: iap,
+        sound: sound,
+        haptics: haptics,
         clock: now == null ? null : () => now!,
         home: home,
       );
