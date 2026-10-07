@@ -1,21 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import 'config/app_config.dart';
+import 'app.dart';
+import 'services/ads_service.dart';
+import 'services/storage_service.dart';
 
-// Placeholder until the Flame game lands in Phase 3.
-void main() => runApp(const ShedlockApp());
-
-class ShedlockApp extends StatelessWidget {
-  const ShedlockApp({super.key});
-
-  @override
-  Widget build(BuildContext context) => const MaterialApp(
-        title: AppConfig.appName,
-        home: Scaffold(
-          body: Center(
-            child: Text('${AppConfig.appName}\n${AppConfig.tagline}',
-                textAlign: TextAlign.center),
-          ),
-        ),
-      );
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  final storage = await PrefsStorageService.create();
+  runApp(ShedlockApp(storage: storage, ads: const PlaceholderAdsService()));
 }
