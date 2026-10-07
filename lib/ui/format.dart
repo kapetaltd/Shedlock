@@ -1,13 +1,7 @@
+import '../core/daily/share_text.dart';
+
 /// 1240 → "1,240".
-String formatScore(int n) {
-  final s = n.abs().toString();
-  final b = StringBuffer(n < 0 ? '-' : '');
-  for (var i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
-    b.write(s[i]);
-  }
-  return b.toString();
-}
+String formatScore(int n) => formatThousands(n);
 
 /// 140 → "x1.4".
 String formatMultiplier(int percent) {

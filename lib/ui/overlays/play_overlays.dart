@@ -6,7 +6,10 @@ import '../widgets/lcd_button.dart';
 
 /// Shown before the first move. Touches pass through to the game.
 class StartHint extends StatelessWidget {
-  const StartHint({super.key});
+  const StartHint({super.key, this.title});
+
+  /// Optional mode line (e.g. "DAILY #42 · RANKED").
+  final String? title;
 
   @override
   Widget build(BuildContext context) => IgnorePointer(
@@ -17,6 +20,10 @@ class StartHint extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (title != null) ...[
+                    Text(title!, style: pixelStyle(10)),
+                    const SizedBox(height: 12),
+                  ],
                   Text('SWIPE TO MOVE', style: pixelStyle(10)),
                   const SizedBox(height: 8),
                   Text('TAP TO SHED', style: pixelStyle(10)),
@@ -48,9 +55,15 @@ class Countdown extends StatelessWidget {
 }
 
 class PausePanel extends StatelessWidget {
-  const PausePanel({super.key, required this.onResume, required this.onHome});
+  const PausePanel({
+    super.key,
+    required this.onResume,
+    required this.onHome,
+    this.homeLabel = 'HOME',
+  });
   final VoidCallback onResume;
   final VoidCallback onHome;
+  final String homeLabel;
 
   @override
   Widget build(BuildContext context) => ColoredBox(
@@ -66,7 +79,7 @@ class PausePanel extends StatelessWidget {
                   const SizedBox(height: 20),
                   LcdButton(label: 'RESUME', filled: true, onPressed: onResume),
                   const SizedBox(height: 12),
-                  LcdButton(label: 'HOME', fontSize: 12, onPressed: onHome),
+                  LcdButton(label: homeLabel, fontSize: 12, onPressed: onHome),
                 ],
               ),
             ),

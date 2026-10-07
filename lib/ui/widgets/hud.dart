@@ -6,9 +6,12 @@ import '../theme/lcd_theme.dart';
 
 /// Score, multiplier, best, and the pause button.
 class Hud extends StatelessWidget {
-  const Hud({super.key, required this.game});
+  const Hud({super.key, required this.game, this.label});
 
   final ShedlockGame game;
+
+  /// Mode tag shown over the score (e.g. "#42 PRACTICE").
+  final String? label;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -22,7 +25,8 @@ class Hud extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('SCORE', style: pixelStyle(8, color: LcdPalette.inkMid)),
+                    Text(label == null ? 'SCORE' : 'SCORE  $label',
+                        style: pixelStyle(8, color: LcdPalette.inkMid)),
                     const SizedBox(height: 4),
                     Text(h.score.toString().padLeft(6, '0'), style: pixelStyle(18)),
                   ],

@@ -1,6 +1,9 @@
 /// Shedlock core: pure Dart game logic. Must not import Flutter or Flame.
 library;
 
+export 'daily/daily_record.dart';
+export 'daily/share_text.dart';
+export 'daily/streak.dart';
 export 'engine/game_engine.dart';
 export 'engine/input_buffer.dart';
 export 'engine/layout_generator.dart';
