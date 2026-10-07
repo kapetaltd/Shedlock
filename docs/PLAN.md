@@ -52,6 +52,14 @@ later phases stay consistent.
 - Only one runner can be on the board at a time.
 - Ad policy, streak and share-text logic arrive with their phases (4 and 5).
 
+## Phase 3 notes
+- Touch input is a Flutter `GestureDetector` over the whole game screen
+  (`lib/game/game_input.dart`), so swipes outside the board still count.
+  Keyboard input (arrows/WASD, Space, P) is handled by the Flame game.
+- `PlaceholderAdsService` grants rewarded-ad rewards instantly until AdMob
+  arrives in Phase 5, so the rewind/continue flow is playable now.
+- Pixel font: Press Start 2P (SIL OFL 1.1, bundled in `assets/fonts`).
+
 ## Environment notes
 - The cloud container has no `/dev/kvm`, so no Android emulator. UI
   verification uses the Flutter web build in headless Chromium.
