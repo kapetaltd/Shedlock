@@ -42,7 +42,7 @@ later phases stay consistent.
 | Continue | Score kept; snake cut to 3 segments and placed at the nearest free spot facing 4 clear cells; resumes after a countdown |
 | Lock bonus | Flat 100 (configurable), independent of the multiplier |
 | Multiplier | +10% per segment above start length; points = 10 × multiplier, integer maths |
-| Daily #1 | 2026-11-01 UTC placeholder in `AppConfig.dailyEpoch` |
+| Daily #1 | 2026-10-01 UTC placeholder in `AppConfig.dailyEpoch` (set to launch day) |
 | Firebase | Analytics no-ops until config files are added |
 | Git | One branch + draft PR per phase |
 
@@ -59,6 +59,24 @@ later phases stay consistent.
 - `PlaceholderAdsService` grants rewarded-ad rewards instantly until AdMob
   arrives in Phase 5, so the rewind/continue flow is playable now.
 - Pixel font: Press Start 2P (SIL OFL 1.1, bundled in `assets/fonts`).
+
+## Phase 4 notes (Daily Challenge)
+- The ranked attempt is marked as used the moment the run starts, so
+  closing the app mid-run cannot buy a retry. Such a day shows as
+  "not finished" and gives no streak.
+- A ranked run ends when the player taps END RUN (after death or from
+  pause), or automatically at death once the free rewind is spent.
+  System back pauses instead of leaving.
+- Practice opens only after the ranked attempt, so nobody can learn the
+  board first.
+- A run that crosses midnight UTC counts for the day it started.
+- Streak = consecutive UTC days with a finished ranked run. It shows as 0
+  once a day is missed.
+- Share text: `Shedlock #N 🐍 score pts`, then food/locks/sheds (and rewinds
+  if used), then a 5-square grid of how each fifth of the run went
+  (⬛🟩🟨🟧, 🔒 if a lock happened), then the tagline.
+- Logic is in `lib/core/daily/`; storage and glue are in
+  `lib/services/daily_service.dart`.
 
 ## Environment notes
 - The cloud container has no `/dev/kvm`, so no Android emulator. UI

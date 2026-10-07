@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../config/app_config.dart';
+import '../../core/core.dart';
+import '../../services/daily_service.dart';
 import '../../services/services.dart';
 import '../format.dart';
 import '../theme/lcd_theme.dart';
 import '../widgets/lcd_button.dart';
 import '../widgets/logo_art.dart';
+import 'daily_screen.dart';
 import 'game_screen.dart';
 import 'placeholder_screen.dart';
 
@@ -25,6 +28,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final best = Services.of(context).storage.endlessBest;
+    final daily = DailyService.of(context);
+    final streak = daily.currentStreak;
+    final dailySub = switch (daily.status) {
+      DailyStatus.available => '#${daily.todayNumber} · PLAY',
+      DailyStatus.completed => '#${daily.todayNumber} · ${formatScore(daily.todayRecord!.score)} PTS',
+      DailyStatus.abandoned => '#${daily.todayNumber} · PRACTICE',
+    };
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -45,12 +55,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       textAlign: TextAlign.center,
                       style: pixelStyle(8, color: LcdPalette.inkMid)),
                   const SizedBox(height: 36),
-                  const LcdButton(label: 'DAILY', sublabel: 'COMING SOON'),
+                  LcdButton(
+                    label: 'DAILY',
+                    sublabel: streak > 0 ? '$dailySub · STREAK $streak' : dailySub,
+                    filled: daily.status == DailyStatus.available,
+                    onPressed: () => _open(const DailyScreen()),
+                  ),
                   const SizedBox(height: 14),
                   LcdButton(
                     label: 'ENDLESS',
                     sublabel: best > 0 ? 'BEST ${formatScore(best)}' : null,
-                    filled: true,
+                    filled: daily.status != DailyStatus.available,
                     onPressed: () => _open(const GameScreen()),
                   ),
                   const SizedBox(height: 14),

@@ -17,11 +17,17 @@ class GameOverOverlay extends StatefulWidget {
     required this.game,
     required this.onPlayAgain,
     required this.onHome,
+    this.ranked = false,
+    this.onEndRun,
   });
 
   final ShedlockGame game;
   final VoidCallback onPlayAgain;
   final VoidCallback onHome;
+
+  /// Ranked daily: the only choices are the free rewind or ending the run.
+  final bool ranked;
+  final VoidCallback? onEndRun;
 
   @override
   State<GameOverOverlay> createState() => _GameOverOverlayState();
@@ -115,9 +121,17 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
                   ),
                   const SizedBox(height: 12),
                 ],
-                LcdButton(label: 'PLAY AGAIN', onPressed: _busy ? null : widget.onPlayAgain),
-                const SizedBox(height: 12),
-                LcdButton(label: 'HOME', fontSize: 12, onPressed: _busy ? null : widget.onHome),
+                if (widget.ranked)
+                  LcdButton(
+                    label: 'END RUN',
+                    sublabel: 'SAVE RANKED SCORE',
+                    onPressed: _busy ? null : widget.onEndRun,
+                  )
+                else ...[
+                  LcdButton(label: 'PLAY AGAIN', onPressed: _busy ? null : widget.onPlayAgain),
+                  const SizedBox(height: 12),
+                  LcdButton(label: 'HOME', fontSize: 12, onPressed: _busy ? null : widget.onHome),
+                ],
               ],
             ),
           ),

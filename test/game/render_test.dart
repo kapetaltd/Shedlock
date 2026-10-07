@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shedlock/core/core.dart';
 import 'package:shedlock/game/shedlock_game.dart';
 import 'package:shedlock/ui/theme/lcd_theme.dart';
+import 'package:shedlock/ui/widgets/slice_grid.dart';
 
 import '../core/helpers.dart';
 
@@ -77,6 +78,37 @@ void main() {
         final image = await boundary.toImage(pixelRatio: 2);
         final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
         File('$out/render-midgame.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      });
+    }
+  });
+
+  testWidgets('renders the daily summary grid for every slice kind', (tester) async {
+    final key = GlobalKey();
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: RepaintBoundary(
+            key: key,
+            child: const ColoredBox(
+              color: LcdPalette.screen,
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: SliceGrid(slices: SliceKind.values, cell: 40),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final out = Platform.environment['SHEDLOCK_SHOTS'];
+    if (out != null) {
+      await tester.runAsync(() async {
+        final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+        final image = await boundary.toImage(pixelRatio: 2);
+        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        File('$out/render-slices.png').writeAsBytesSync(bytes!.buffer.asUint8List());
       });
     }
   });

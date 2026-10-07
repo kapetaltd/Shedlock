@@ -1,7 +1,10 @@
 import 'package:flutter/widgets.dart';
 
 import 'ads_service.dart';
+import 'share_service.dart';
 import 'storage_service.dart';
+
+DateTime _systemNow() => DateTime.now();
 
 /// Gives every screen access to the app's services.
 class Services extends InheritedWidget {
@@ -9,11 +12,17 @@ class Services extends InheritedWidget {
     super.key,
     required this.storage,
     required this.ads,
+    required this.share,
+    this.clock = _systemNow,
     required super.child,
   });
 
   final StorageService storage;
   final AdsService ads;
+  final ShareService share;
+
+  /// Current time. Injected so tests can pin the daily date.
+  final DateTime Function() clock;
 
   static Services of(BuildContext context) {
     final s = context.dependOnInheritedWidgetOfExactType<Services>();
@@ -23,5 +32,8 @@ class Services extends InheritedWidget {
 
   @override
   bool updateShouldNotify(Services oldWidget) =>
-      storage != oldWidget.storage || ads != oldWidget.ads;
+      storage != oldWidget.storage ||
+      ads != oldWidget.ads ||
+      share != oldWidget.share ||
+      clock != oldWidget.clock;
 }
