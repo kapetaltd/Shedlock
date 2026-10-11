@@ -92,22 +92,28 @@ All ad unit IDs and store product IDs are in
 [`lib/config/monetization_config.dart`](lib/config/monetization_config.dart).
 They are currently Google's official **test** IDs.
 
-### Swapping in real AdMob IDs
-1. In AdMob, create the app (Android and iOS) and two ad units per platform:
-   **Rewarded** and **Interstitial**.
-2. Put the unit IDs in `MonetizationConfig` (`_androidRewarded`,
-   `_iosRewarded`, `_androidInterstitial`, `_iosInterstitial`).
-3. Put the **app** IDs (the ones with `~`) in:
-   - `android/app/build.gradle.kts` → `manifestPlaceholders["admobAppId"]`
-   - `ios/Runner/Info.plist` → `GADApplicationIdentifier`
+### AdMob IDs
+Shedlock uses Kapeta's AdMob account. **Debug and profile builds always use
+Google's test ads**, so nobody can tap a real ad while developing (that can get
+an AdMob account banned). **Release builds** use the live units, once they are
+filled in; an empty live ID falls back to the test unit.
 
-   Also update the reference copies in `MonetizationConfig`. The SDK reads the
-   app ID before any Dart code runs, so it has to be in these native files.
-4. In AdMob → Privacy & messaging, create a GDPR consent message. The app runs
+1. The ad unit IDs (with a `/`) go in `MonetizationConfig`:
+   `androidRewardedLive`, `androidInterstitialLive`, `iosRewardedLive`,
+   `iosInterstitialLive`.
+2. The **app** IDs (with a `~`) go in `MonetizationConfig` *and* the native
+   files, because the SDK reads them before any Dart code runs:
+   - `android/app/build.gradle.kts` → `manifestPlaceholders["admobAppId"]`
+     (set: `ca-app-pub-1575340671876931~5932306262`)
+   - `ios/Runner/Info.plist` → `GADApplicationIdentifier` (still Google's test
+     app ID until Shedlock is added to AdMob for iOS)
+
+   `test/services/ad_config_test.dart` checks the copies match and that unit
+   IDs aren't app IDs.
+3. In AdMob → Privacy & messaging, create a GDPR consent message. The app runs
    Google's UMP consent flow at startup, and Settings shows **Privacy options**
    wherever the law requires it.
-5. Keep test IDs (or register test devices) during development. Clicking your
-   own live ads can get the account suspended.
+4. Never tap ads in a release build on your own device.
 
 ### In-app products
 Create these **non-consumable** products in Play Console (Monetize → Products
@@ -242,7 +248,7 @@ pixel style for the whole app.
 ## Release checklist
 
 - [x] `AppConfig.dailyEpoch` set to launch day: 1 November 2026 (Daily #1). Earlier days show as "Preview".
-- [ ] Real AdMob app and unit IDs (Dart config + both native files), and a
+- [ ] AdMob: Android app ID set; live ad unit IDs and iOS IDs still to add;
       consent message set up in AdMob.
 - [ ] IAP products created in both stores; shop tested on a test track.
 - [ ] Firebase config files added (and the Gradle plugin on Android).
