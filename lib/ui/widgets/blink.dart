@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-/// Hard on/off blink, like an LCD prompt. No easing.
+import '../../game/palette.dart';
+
+/// Draws attention to a prompt: a hard on/off blink like an LCD (retro),
+/// or a gentle fade in and out (modern).
 class Blink extends StatefulWidget {
   const Blink({super.key, required this.child, this.period = const Duration(milliseconds: 500)});
 
@@ -17,10 +20,17 @@ class _BlinkState extends State<Blink> {
   late final Timer _timer;
   bool _on = true;
 
+  // Modern: each fade takes most of the period, with a short rest between,
+  // so frames stop between fades.
+  Duration get _modernPeriod => widget.period * 2;
+
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(widget.period, (_) => setState(() => _on = !_on));
+    _timer = Timer.periodic(
+      Palette.retro ? widget.period : _modernPeriod,
+      (_) => setState(() => _on = !_on),
+    );
   }
 
   @override
@@ -30,5 +40,13 @@ class _BlinkState extends State<Blink> {
   }
 
   @override
-  Widget build(BuildContext context) => Opacity(opacity: _on ? 1 : 0, child: widget.child);
+  Widget build(BuildContext context) {
+    if (Palette.retro) return Opacity(opacity: _on ? 1 : 0, child: widget.child);
+    return AnimatedOpacity(
+      opacity: _on ? 1 : 0.45,
+      duration: _modernPeriod * 0.8,
+      curve: Curves.easeInOut,
+      child: widget.child,
+    );
+  }
 }

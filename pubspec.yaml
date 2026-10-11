@@ -71,6 +71,16 @@ flutter:
     - family: PressStart2P
       fonts:
         - asset: assets/fonts/PressStart2P-Regular.ttf
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Nunito-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Nunito-ExtraBold.ttf
+          weight: 800
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -103,23 +113,28 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-# App icon: generated from assets/icon (see tool/gen_icon.py).
+# App icon: generated from assets/icon (see tool/render_icon_test.dart).
 #   dart run flutter_launcher_icons
 flutter_launcher_icons:
   android: "ic_launcher"
   ios: true
   image_path: "assets/icon/icon.png"
   remove_alpha_ios: true
-  adaptive_icon_background: "#B2C69A"
+  adaptive_icon_background: "#F5F3EE"
   adaptive_icon_foreground: "assets/icon/icon_foreground.png"
   min_sdk_android: 21
 
-# Native launch screen in the LCD colour, so there is no white flash.
+# Native launch screen in the app's background colour (light and dark), so
+# there is no flash before the first frame.
 #   dart run flutter_native_splash:create
 flutter_native_splash:
-  color: "#B2C69A"
+  color: "#F5F3EE"
   image: "assets/icon/splash.png"
+  color_dark: "#12161C"
+  image_dark: "assets/icon/splash_dark.png"
   android_12:
-    color: "#B2C69A"
+    color: "#F5F3EE"
     image: "assets/icon/icon_foreground.png"
+    color_dark: "#12161C"
+    image_dark: "assets/icon/splash_dark.png"
   web: false

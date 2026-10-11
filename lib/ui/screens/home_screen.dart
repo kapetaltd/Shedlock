@@ -5,8 +5,8 @@ import '../../core/core.dart';
 import '../../services/daily_service.dart';
 import '../../services/services.dart';
 import '../format.dart';
-import '../theme/lcd_theme.dart';
-import '../widgets/lcd_button.dart';
+import '../theme/app_theme.dart';
+import '../widgets/app_button.dart';
 import '../widgets/logo_art.dart';
 import 'daily_screen.dart';
 import 'game_screen.dart';
@@ -51,9 +51,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final daily = DailyService.of(context);
     final streak = daily.currentStreak;
     final dailySub = switch (daily.status) {
-      DailyStatus.available => '#${daily.todayNumber} · PLAY',
-      DailyStatus.completed => '#${daily.todayNumber} · ${formatScore(daily.todayRecord!.score)} PTS',
-      DailyStatus.abandoned => '#${daily.todayNumber} · PRACTICE',
+      DailyStatus.available => '#${daily.todayNumber} · Play',
+      DailyStatus.completed => '#${daily.todayNumber} · ${formatScore(daily.todayRecord!.score)} pts',
+      DailyStatus.abandoned => '#${daily.todayNumber} · Practice',
     };
     return Scaffold(
       body: SafeArea(
@@ -65,26 +65,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const LogoArt(pixel: 6),
-                  const SizedBox(height: 20),
-                  FittedBox(
-                    child: Text(AppConfig.appName.toUpperCase(), style: pixelStyle(32)),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(AppConfig.tagline.toUpperCase(),
-                      textAlign: TextAlign.center,
-                      style: pixelStyle(8, color: LcdPalette.inkMid)),
+                  const LogoArt(size: 132),
+                  SizedBox(height: Palette.retro ? 20 : 12),
+                  FittedBox(child: Txt(AppConfig.appName, role: TextRole.hero)),
+                  SizedBox(height: Palette.retro ? 12 : 6),
+                  Txt(AppConfig.tagline, role: TextRole.caption, align: TextAlign.center),
                   const SizedBox(height: 36),
-                  LcdButton(
-                    label: 'DAILY',
-                    sublabel: streak > 0 ? '$dailySub · STREAK $streak' : dailySub,
+                  AppButton(
+                    label: 'Daily',
+                    sublabel: streak > 0 ? '$dailySub · Streak $streak' : dailySub,
                     filled: daily.status == DailyStatus.available,
                     onPressed: () => _open(const DailyScreen()),
                   ),
                   const SizedBox(height: 14),
-                  LcdButton(
-                    label: 'ENDLESS',
-                    sublabel: best > 0 ? 'BEST ${formatScore(best)}' : null,
+                  AppButton(
+                    label: 'Endless',
+                    sublabel: best > 0 ? 'Best ${formatScore(best)}' : null,
                     filled: daily.status != DailyStatus.available,
                     onPressed: () => _open(const GameScreen()),
                   ),
@@ -92,17 +88,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   Row(
                     children: [
                       Expanded(
-                        child: LcdButton(
-                          label: 'SHOP',
-                          fontSize: 12,
+                        child: AppButton(
+                          label: 'Shop',
+                          compact: true,
                           onPressed: () => _open(const ShopScreen()),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: LcdButton(
-                          label: 'SETTINGS',
-                          fontSize: 12,
+                        child: AppButton(
+                          label: 'Settings',
+                          compact: true,
                           onPressed: () => _open(const SettingsScreen()),
                         ),
                       ),

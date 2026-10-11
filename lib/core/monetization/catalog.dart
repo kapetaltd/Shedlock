@@ -10,10 +10,10 @@ enum Pack {
 
 /// Snake looks. Purely cosmetic.
 enum SnakeSkin {
-  classic(null, 'CLASSIC'),
-  striped(Pack.skins, 'STRIPED'),
-  dotted(Pack.skins, 'DOTTED'),
-  hollow(Pack.skins, 'HOLLOW');
+  classic(null, 'Classic'),
+  striped(Pack.skins, 'Striped'),
+  dotted(Pack.skins, 'Spotted'),
+  hollow(Pack.skins, 'Outline');
 
   const SnakeSkin(this.pack, this.label);
   final Pack? pack;
@@ -22,26 +22,40 @@ enum SnakeSkin {
 
 /// What the tail leaves behind as the snake moves. Purely cosmetic.
 enum Trail {
-  none(null, 'NONE'),
-  ghost(Pack.trails, 'GHOST'),
-  dust(Pack.trails, 'PIXEL DUST');
+  none(null, 'None'),
+  ghost(Pack.trails, 'Ghost'),
+  dust(Pack.trails, 'Sparkle');
 
   const Trail(this.pack, this.label);
   final Pack? pack;
   final String label;
 }
 
-/// Screen colours. Purely cosmetic.
+/// The look of the whole app. Purely cosmetic.
+///
+/// [auto] follows the device: [paper] in light mode, [dusk] in dark mode.
+/// The [retro] themes switch everything to the monochrome LCD style.
 enum BoardTheme {
-  lime(null, 'LIME LCD'),
-  amber(Pack.themes, 'AMBER'),
-  ice(Pack.themes, 'ICE'),
-  mono(Pack.themes, 'MONO'),
-  night(Pack.themes, 'NIGHT');
+  auto(null, 'Auto'),
+  paper(null, 'Paper'),
+  dusk(null, 'Dusk'),
+  sage(Pack.themes, 'Sage'),
+  sand(Pack.themes, 'Sand'),
+  ink(Pack.themes, 'Ink'),
+  lime(Pack.themes, 'Lime', retro: true),
+  amber(Pack.themes, 'Amber', retro: true),
+  ice(Pack.themes, 'Ice', retro: true),
+  mono(Pack.themes, 'Mono', retro: true),
+  night(Pack.themes, 'Night', retro: true);
 
-  const BoardTheme(this.pack, this.label);
+  const BoardTheme(this.pack, this.label, {this.retro = false});
   final Pack? pack;
   final String label;
+  final bool retro;
+
+  /// The concrete theme to show: [auto] picks by the device's dark mode.
+  BoardTheme resolve({required bool systemDark}) =>
+      this == auto ? (systemDark ? dusk : paper) : this;
 }
 
 /// The player's selected cosmetics.
@@ -49,7 +63,7 @@ class Loadout {
   const Loadout({
     this.skin = SnakeSkin.classic,
     this.trail = Trail.none,
-    this.theme = BoardTheme.lime,
+    this.theme = BoardTheme.auto,
   });
 
   final SnakeSkin skin;
@@ -67,7 +81,7 @@ class Loadout {
   Loadout restrictTo(Set<Pack> owned) => Loadout(
         skin: skin.pack == null || owned.contains(skin.pack) ? skin : SnakeSkin.classic,
         trail: trail.pack == null || owned.contains(trail.pack) ? trail : Trail.none,
-        theme: theme.pack == null || owned.contains(theme.pack) ? theme : BoardTheme.lime,
+        theme: theme.pack == null || owned.contains(theme.pack) ? theme : BoardTheme.auto,
       );
 
   Map<String, String> toJson() => {'skin': skin.name, 'trail': trail.name, 'theme': theme.name};
@@ -78,7 +92,7 @@ class Loadout {
     return Loadout(
       skin: pick(SnakeSkin.values, j['skin'], SnakeSkin.classic),
       trail: pick(Trail.values, j['trail'], Trail.none),
-      theme: pick(BoardTheme.values, j['theme'], BoardTheme.lime),
+      theme: pick(BoardTheme.values, j['theme'], BoardTheme.auto),
     );
   }
 }

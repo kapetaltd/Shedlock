@@ -7,8 +7,9 @@ import '../../services/ads_service.dart';
 import '../../services/ad_coordinator.dart';
 import '../../services/services.dart';
 import '../format.dart';
-import '../theme/lcd_theme.dart';
-import '../widgets/lcd_button.dart';
+import '../theme/app_theme.dart';
+import 'play_overlays.dart';
+import '../widgets/app_button.dart';
 
 /// Score summary plus every second-chance option the run still has.
 /// Appears after a short delay so the death shake is visible.
@@ -72,7 +73,7 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
     if (!mounted) return;
     setState(() {
       _busy = false;
-      if (!earned) _adMessage = 'NO AD RIGHT NOW. TRY AGAIN SOON.';
+      if (!earned) _adMessage = 'No ad right now. Try again soon.';
     });
     if (earned) grant();
   }
@@ -85,76 +86,78 @@ class _GameOverOverlayState extends State<GameOverOverlay> {
     final isBest = s.score > 0 && s.score >= widget.game.best;
     final adRewindsLeft = session.rules.maxAdRewinds - session.adRewindsUsed;
 
-    return ColoredBox(
-      color: LcdPalette.screen.withValues(alpha: 0.82),
-      child: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 320),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('GAME OVER', style: pixelStyle(20)),
-                const SizedBox(height: 18),
-                Text(formatScore(s.score), style: pixelStyle(32)),
-                const SizedBox(height: 8),
-                Text(isBest ? 'NEW BEST!' : 'BEST ${formatScore(widget.game.best)}',
-                    style: pixelStyle(10, color: LcdPalette.inkMid)),
-                const SizedBox(height: 14),
-                Text(
-                  'FOOD ${s.foodEaten}  LOCKS ${s.locks}  SHEDS ${s.sheds}',
-                  textAlign: TextAlign.center,
-                  style: pixelStyle(8),
-                ),
-                const SizedBox(height: 24),
-                if (_adMessage != null) ...[
-                  Text(_adMessage!, textAlign: TextAlign.center, style: pixelStyle(8)),
-                  const SizedBox(height: 12),
-                ],
-                if (session.canFreeRewind) ...[
-                  LcdButton(
-                    label: 'REWIND 3S',
-                    sublabel: 'FREE',
-                    filled: true,
-                    onPressed: _busy ? null : () => _withSound(widget.game.rewind)(),
-                  ),
-                  const SizedBox(height: 12),
-                ] else if (session.canAdRewind) ...[
-                  LcdButton(
-                    label: 'REWIND 3S',
-                    sublabel: 'WATCH AD · $adRewindsLeft LEFT',
-                    filled: true,
-                    onPressed: _busy
-                        ? null
-                        : () => _withAd(RewardedPlacement.rewind, _withSound(widget.game.rewind)),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                if (session.canContinue) ...[
-                  LcdButton(
-                    label: 'CONTINUE',
-                    sublabel: 'WATCH AD · KEEP SCORE',
-                    onPressed: _busy
-                        ? null
-                        : () => _withAd(RewardedPlacement.continueRun, _withSound(widget.game.continueRun)),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                if (widget.ranked)
-                  LcdButton(
-                    label: 'END RUN',
-                    sublabel: 'SAVE RANKED SCORE',
-                    onPressed: _busy ? null : widget.onEndRun,
-                  )
-                else ...[
-                  LcdButton(label: 'PLAY AGAIN', onPressed: _busy ? null : widget.onPlayAgain),
-                  const SizedBox(height: 12),
-                  LcdButton(label: 'HOME', fontSize: 12, onPressed: _busy ? null : widget.onHome),
-                ],
-              ],
-            ),
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Txt('Game over', role: TextRole.title),
+        SizedBox(height: Palette.retro ? 18 : 8),
+        Text(formatScore(s.score), style: textStyle(TextRole.display, size: Palette.retro ? 32 : null)),
+        SizedBox(height: Palette.retro ? 8 : 2),
+        Txt(isBest ? 'New best!' : 'Best ${formatScore(widget.game.best)}',
+            role: TextRole.caption, color: isBest ? Palette.accent : null),
+        const SizedBox(height: 14),
+        Txt(
+          'Food ${s.foodEaten}  ·  Locks ${s.locks}  ·  Sheds ${s.sheds}',
+          role: TextRole.caption,
+          color: Palette.ink,
+          align: TextAlign.center,
+        ),
+        const SizedBox(height: 24),
+        if (_adMessage != null) ...[
+          Txt(_adMessage!, role: TextRole.caption, color: Palette.ink, align: TextAlign.center),
+          const SizedBox(height: 12),
+        ],
+        if (session.canFreeRewind) ...[
+          AppButton(
+            label: 'Rewind 3s',
+            sublabel: 'Free',
+            filled: true,
+            onPressed: _busy ? null : () => _withSound(widget.game.rewind)(),
           ),
+          const SizedBox(height: 12),
+        ] else if (session.canAdRewind) ...[
+          AppButton(
+            label: 'Rewind 3s',
+            sublabel: 'Watch ad · $adRewindsLeft left',
+            filled: true,
+            onPressed: _busy
+                ? null
+                : () => _withAd(RewardedPlacement.rewind, _withSound(widget.game.rewind)),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (session.canContinue) ...[
+          AppButton(
+            label: 'Continue',
+            sublabel: 'Watch ad · Keep score',
+            onPressed: _busy
+                ? null
+                : () => _withAd(RewardedPlacement.continueRun, _withSound(widget.game.continueRun)),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (widget.ranked)
+          AppButton(
+            label: 'End run',
+            sublabel: 'Save ranked score',
+            onPressed: _busy ? null : widget.onEndRun,
+          )
+        else ...[
+          AppButton(label: 'Play again', onPressed: _busy ? null : widget.onPlayAgain),
+          const SizedBox(height: 12),
+          AppButton(label: 'Home', compact: true, onPressed: _busy ? null : widget.onHome),
+        ],
+      ],
+    );
+
+    return Scrim(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 340),
+          child: Palette.retro
+              ? content
+              : AppCard(padding: const EdgeInsets.fromLTRB(20, 24, 20, 20), child: content),
         ),
       ),
     );

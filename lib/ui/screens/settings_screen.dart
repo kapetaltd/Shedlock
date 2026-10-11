@@ -4,8 +4,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../config/app_config.dart';
 import '../../services/services.dart';
 import '../../services/settings.dart';
-import '../theme/lcd_theme.dart';
-import '../widgets/lcd_button.dart';
+import '../theme/app_theme.dart';
+import '../widgets/app_button.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -43,56 +43,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
                 children: [
-                  Center(child: Text('SETTINGS', style: pixelStyle(20))),
+                  const Center(child: Txt('Settings', role: TextRole.title)),
                   const SizedBox(height: 24),
                   _Toggle(
-                    label: 'SOUND',
+                    label: 'Sound',
                     value: s.sound,
                     onChanged: (v) => services.settings.value = s.copyWith(sound: v),
                   ),
                   _Toggle(
-                    label: 'HAPTICS',
+                    label: 'Haptics',
                     value: s.haptics,
                     onChanged: (v) => services.settings.value = s.copyWith(haptics: v),
                   ),
                   _Toggle(
-                    label: 'SCREEN SHAKE',
+                    label: 'Screen shake',
                     value: s.screenShake,
                     onChanged: (v) => services.settings.value = s.copyWith(screenShake: v),
                   ),
                   const SizedBox(height: 18),
                   if (_privacyRequired) ...[
-                    LcdButton(
-                      label: 'PRIVACY OPTIONS',
-                      fontSize: 10,
+                    AppButton(
+                      label: 'Privacy options',
+                      compact: true,
                       onPressed: services.ads.showPrivacyOptions,
                     ),
                     const SizedBox(height: 12),
                   ],
-                  LcdButton(label: 'RESTORE PURCHASES', fontSize: 10, onPressed: services.iap.restore),
+                  AppButton(label: 'Restore purchases', compact: true, onPressed: services.iap.restore),
                   const SizedBox(height: 28),
-                  Text('HOW TO PLAY', style: pixelStyle(12)),
+                  const Txt('How to play', role: TextRole.heading),
                   const SizedBox(height: 12),
-                  Text(
-                    'SWIPE TO TURN. EAT TO GROW: LONGER SNAKE, BIGGER MULTIPLIER.\n\n'
-                    'TAP TO SHED: EVERYTHING BEHIND YOUR FIRST 3 SEGMENTS BECOMES '
-                    'WALLS FOR 10 SECONDS. YOUR MULTIPLIER RESETS.\n\n'
-                    'RUNNERS MOVE. TRAP ONE SO IT HAS NO WAY OUT TO LOCK IT FOR A BIG BONUS.\n\n'
-                    'CRASHED? REWIND 3 SECONDS AND TRY AGAIN.',
-                    style: pixelStyle(8, color: LcdPalette.inkMid, height: 1.9),
+                  const Txt(
+                    'Swipe to turn. Eat to grow: a longer snake means a bigger multiplier.\n\n'
+                    'Tap to shed: everything behind your first 3 segments becomes '
+                    'walls for 10 seconds. Your multiplier resets.\n\n'
+                    'Runners move. Trap one so it has no way out to lock it for a big bonus.\n\n'
+                    'Crashed? Rewind 3 seconds and try again.',
                   ),
                   const SizedBox(height: 28),
-                  Text('ABOUT', style: pixelStyle(12)),
+                  const Txt('About', role: TextRole.heading),
                   const SizedBox(height: 12),
-                  Text(
-                    '${AppConfig.appName.toUpperCase()} ${_version.isEmpty ? '' : 'V$_version'}\n'
-                    '${AppConfig.tagline.toUpperCase()}\n\n'
-                    'FONT: PRESS START 2P (SIL OPEN FONT LICENSE)\n'
-                    'SOUNDS AND ART: ORIGINAL',
-                    style: pixelStyle(8, color: LcdPalette.inkMid, height: 1.9),
+                  Txt(
+                    '${AppConfig.appName} ${_version.isEmpty ? '' : 'v$_version'}\n'
+                    '${AppConfig.tagline}\n\n'
+                    'Fonts: Nunito and Press Start 2P (SIL Open Font License)\n'
+                    'Sounds and art: original',
+                    role: TextRole.caption,
                   ),
                   const SizedBox(height: 24),
-                  LcdButton(label: 'BACK', fontSize: 12, onPressed: () => Navigator.of(context).pop()),
+                  AppButton(label: 'Back', compact: true, onPressed: () => Navigator.of(context).pop()),
                 ],
               ),
             ),
@@ -113,31 +112,63 @@ class _Toggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
         toggled: value,
-        label: label,
+        label: say(label),
+        excludeSemantics: true,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => onChanged(!value),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.symmetric(vertical: Palette.retro ? 10 : 8),
             child: Row(
               children: [
-                Expanded(child: Text(label, style: pixelStyle(12))),
-                Container(
-                  width: 74,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color: value ? LcdPalette.ink : null,
-                    border: Border.all(color: LcdPalette.ink, width: 3),
-                  ),
-                  child: Center(
-                    child: Text(
-                      value ? 'ON' : 'OFF',
-                      style: pixelStyle(10, color: value ? LcdPalette.screen : LcdPalette.ink),
-                    ),
-                  ),
+                Expanded(
+                  child: Txt(label, role: Palette.retro ? TextRole.heading : TextRole.label),
                 ),
+                if (Palette.retro) _retroSwitch() else _modernSwitch(),
               ],
             ),
+          ),
+        ),
+      );
+
+  Widget _modernSwitch() => AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        width: 52,
+        height: 32,
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          color: value ? Palette.accent : Palette.line,
+          borderRadius: BorderRadius.circular(99),
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              color: value ? Palette.onAccent : Palette.surface,
+              shape: BoxShape.circle,
+              boxShadow: [BoxShadow(color: Palette.shadow, blurRadius: 4, offset: const Offset(0, 1))],
+            ),
+          ),
+        ),
+      );
+
+  Widget _retroSwitch() => Container(
+        width: 74,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: value ? Palette.ink : null,
+          border: Border.all(color: Palette.ink, width: 3),
+        ),
+        child: Center(
+          child: Txt(
+            value ? 'On' : 'Off',
+            role: TextRole.label,
+            color: value ? Palette.background : Palette.ink,
           ),
         ),
       );

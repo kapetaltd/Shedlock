@@ -82,11 +82,11 @@ class StoreIapService with _Ownership implements IapService {
     // Listen before anything else so purchases completed while the app was
     // closed are delivered.
     _sub = _iap.purchaseStream.listen(_onPurchases, onError: (Object e) {
-      _message.value = 'STORE ERROR';
+      _message.value = 'Store error';
       debugPrint('[iap] stream error: $e');
     });
     if (!await _iap.isAvailable()) {
-      _message.value = 'STORE UNAVAILABLE';
+      _message.value = 'Store unavailable';
       _offers.value = {
         for (final p in Pack.values) p: PackOffer(pack: p, price: '', available: false),
       };
@@ -110,7 +110,7 @@ class StoreIapService with _Ownership implements IapService {
   Future<void> buy(Pack pack) async {
     final details = _products[pack];
     if (details == null) {
-      _message.value = 'NOT AVAILABLE YET';
+      _message.value = 'Not available yet';
       return;
     }
     _message.value = null;
@@ -119,7 +119,7 @@ class StoreIapService with _Ownership implements IapService {
 
   @override
   Future<void> restore() async {
-    _message.value = 'RESTORING...';
+    _message.value = 'Restoring...';
     await _iap.restorePurchases();
   }
 
@@ -128,7 +128,7 @@ class StoreIapService with _Ownership implements IapService {
       final pack = MonetizationConfig.packForProduct(p.productID);
       switch (p.status) {
         case PurchaseStatus.pending:
-          _message.value = 'PURCHASE PENDING';
+          _message.value = 'Purchase pending';
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           // NOTE: no server-side receipt validation. Fine for cosmetics and
@@ -136,9 +136,9 @@ class StoreIapService with _Ownership implements IapService {
           if (pack != null) {
             await grant(pack, isNewPurchase: p.status == PurchaseStatus.purchased);
           }
-          _message.value = p.status == PurchaseStatus.restored ? 'PURCHASES RESTORED' : 'THANK YOU!';
+          _message.value = p.status == PurchaseStatus.restored ? 'Purchases restored' : 'Thank you!';
         case PurchaseStatus.error:
-          _message.value = 'PURCHASE FAILED';
+          _message.value = 'Purchase failed';
           debugPrint('[iap] error: ${p.error}');
         case PurchaseStatus.canceled:
           _message.value = null;
@@ -192,11 +192,11 @@ class FakeIapService with _Ownership implements IapService {
   @override
   Future<void> buy(Pack pack) async {
     await grant(pack, isNewPurchase: true);
-    _message.value = 'THANK YOU! (TEST STORE)';
+    _message.value = 'Thank you! (test store)';
   }
 
   @override
-  Future<void> restore() async => _message.value = 'PURCHASES RESTORED';
+  Future<void> restore() async => _message.value = 'Purchases restored';
 
   @override
   void dispose() {}

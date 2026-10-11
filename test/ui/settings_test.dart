@@ -17,20 +17,20 @@ void main() {
     final env = TestEnv();
     await tester.pumpWidget(env.app(const SettingsScreen()));
     await tester.pump();
-    expect(find.text('PRIVACY OPTIONS'), findsNothing);
+    expect(find.text('Privacy options'), findsNothing);
 
-    await tester.tap(find.text('SOUND'));
+    await tester.tap(find.text('Sound'));
     await tester.pump();
     expect(env.storage.settings.sound, isFalse);
-    await tester.tap(find.text('SCREEN SHAKE'));
+    await tester.tap(find.text('Screen shake'));
     await tester.pump();
     expect(env.storage.settings.screenShake, isFalse);
-    expect(find.text('OFF'), findsNWidgets(2));
+    expect(env.storage.settings.haptics, isTrue, reason: 'untouched');
 
     final env2 = TestEnv()..ads.privacyRequired = true;
     await tester.pumpWidget(env2.app(const SettingsScreen()));
     await tester.pump();
-    await tester.tap(find.text('PRIVACY OPTIONS'));
+    await tester.tap(find.text('Privacy options'));
     await tester.pump();
     expect(env2.ads.privacyFormsShown, 1);
   });
@@ -54,7 +54,7 @@ void main() {
 
     // Free rewind plays the rewind sound and ticks through the countdown.
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.text('REWIND 3S'));
+    await tester.tap(find.text('Rewind 3s'));
     await tester.pump(const Duration(milliseconds: 100));
     expect(env.sound.played, contains(Sfx.rewind));
     for (var i = 0; i < 20; i++) {

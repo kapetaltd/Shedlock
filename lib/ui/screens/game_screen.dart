@@ -227,7 +227,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                       ? const SizedBox.shrink()
                       : PausePanel(
                           onResume: _game.resumeGame,
-                          homeLabel: _ranked ? 'END RUN' : 'HOME',
+                          homeLabel: _ranked ? 'End run' : 'Home',
                           onHome: _ranked ? _finishRanked : _home,
                         ),
                   PlayPhase.over => GameOverOverlay(
@@ -249,13 +249,13 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   String? get _modeLabel => switch (widget.mode) {
         GameMode.endless => null,
-        GameMode.daily => '#${_game.session.dailyNumber}${_ranked ? '' : ' PRACTICE'}',
+        GameMode.daily => '#${_game.session.dailyNumber}${_ranked ? '' : ' Practice'}',
       };
 
   String? get _startTitle => switch (widget.mode) {
         GameMode.endless => null,
         GameMode.daily => _ranked
-            ? 'DAILY #${_game.session.dailyNumber} · RANKED'
-            : 'DAILY #${_game.session.dailyNumber} · PRACTICE',
+            ? 'Daily #${_game.session.dailyNumber} · Ranked'
+            : 'Daily #${_game.session.dailyNumber} · Practice',
       };
 }

@@ -4,8 +4,8 @@ import '../../core/core.dart';
 import '../../services/daily_service.dart';
 import '../../services/services.dart';
 import '../format.dart';
-import '../theme/lcd_theme.dart';
-import '../widgets/lcd_button.dart';
+import '../theme/app_theme.dart';
+import '../widgets/app_button.dart';
 import '../widgets/slice_grid.dart';
 import 'game_screen.dart';
 
@@ -29,28 +29,27 @@ class DailyResultScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('SHEDLOCK #${record.dailyNumber}', style: pixelStyle(16)),
-                  const SizedBox(height: 22),
-                  Text(formatScore(record.score), style: pixelStyle(36)),
+                  Txt('Shedlock #${record.dailyNumber}', role: TextRole.heading),
+                  SizedBox(height: Palette.retro ? 22 : 12),
+                  Text(formatScore(record.score), style: textStyle(TextRole.display)),
                   const SizedBox(height: 6),
-                  Text('POINTS', style: pixelStyle(8, color: LcdPalette.inkMid)),
+                  Txt('Points', role: TextRole.caption),
                   const SizedBox(height: 20),
                   SliceGrid(slices: record.slices, cell: 30),
                   const SizedBox(height: 20),
-                  Text(
-                    'FOOD ${record.foodEaten}  LOCKS ${record.locks}  SHEDS ${record.sheds}'
-                    '${record.rewindsUsed > 0 ? '  REWINDS ${record.rewindsUsed}' : ''}',
-                    textAlign: TextAlign.center,
-                    style: pixelStyle(8, height: 1.8),
+                  Txt(
+                    'Food ${record.foodEaten}  ·  Locks ${record.locks}  ·  Sheds ${record.sheds}'
+                    '${record.rewindsUsed > 0 ? '  ·  Rewinds ${record.rewindsUsed}' : ''}',
+                    align: TextAlign.center,
                   ),
                   const SizedBox(height: 14),
-                  Text(
-                    'STREAK ${daily.currentStreak}  ·  BEST ${daily.bestStreak}',
-                    style: pixelStyle(10),
+                  Txt(
+                    'Streak ${daily.currentStreak}  ·  Best ${daily.bestStreak}',
+                    role: TextRole.label,
                   ),
                   const SizedBox(height: 28),
-                  LcdButton(
-                    label: 'SHARE',
+                  AppButton(
+                    label: 'Share',
                     filled: true,
                     onPressed: () {
                       Services.of(context).analytics.log(Events.dailyShared(record.dailyNumber));
@@ -58,9 +57,9 @@ class DailyResultScreen extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 14),
-                  LcdButton(
-                    label: 'PRACTICE',
-                    sublabel: 'UNRANKED',
+                  AppButton(
+                    label: 'Practice',
+                    sublabel: 'Unranked',
                     onPressed: () => Navigator.of(context).pushReplacement(
                       MaterialPageRoute<void>(
                         builder: (_) => const GameScreen(mode: GameMode.daily, ranked: false),
@@ -68,9 +67,9 @@ class DailyResultScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  LcdButton(
-                    label: 'DONE',
-                    fontSize: 12,
+                  AppButton(
+                    label: 'Done',
+                    compact: true,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],

@@ -54,14 +54,16 @@ void main() {
     test('every paid item belongs to a pack; free defaults have none', () {
       expect(SnakeSkin.classic.pack, isNull);
       expect(Trail.none.pack, isNull);
-      expect(BoardTheme.lime.pack, isNull);
+      for (final b in [BoardTheme.auto, BoardTheme.paper, BoardTheme.dusk]) {
+        expect(b.pack, isNull, reason: '$b is free');
+      }
       for (final s in SnakeSkin.values.skip(1)) {
         expect(s.pack, Pack.skins);
       }
       for (final t in Trail.values.skip(1)) {
         expect(t.pack, Pack.trails);
       }
-      for (final b in BoardTheme.values.skip(1)) {
+      for (final b in BoardTheme.values.skip(3)) {
         expect(b.pack, Pack.themes);
       }
     });
@@ -69,7 +71,7 @@ void main() {
     test('items from packs the player no longer owns fall back to free ones', () {
       const l = Loadout(skin: SnakeSkin.hollow, trail: Trail.dust, theme: BoardTheme.night);
       final r = l.restrictTo({Pack.trails});
-      expect((r.skin, r.trail, r.theme), (SnakeSkin.classic, Trail.dust, BoardTheme.lime));
+      expect((r.skin, r.trail, r.theme), (SnakeSkin.classic, Trail.dust, BoardTheme.auto));
       expect(identical(l.restrictTo(Pack.values.toSet()).skin, SnakeSkin.hollow), isTrue);
     });
 
@@ -78,7 +80,23 @@ void main() {
       final back = Loadout.fromJson(l.toJson());
       expect((back.skin, back.trail, back.theme), (l.skin, l.trail, l.theme));
       final junk = Loadout.fromJson({'skin': 'rainbow', 'theme': 7});
-      expect((junk.skin, junk.trail, junk.theme), (SnakeSkin.classic, Trail.none, BoardTheme.lime));
+      expect((junk.skin, junk.trail, junk.theme), (SnakeSkin.classic, Trail.none, BoardTheme.auto));
+    });
+
+    test('auto follows dark mode; every other theme ignores it', () {
+      expect(BoardTheme.auto.resolve(systemDark: false), BoardTheme.paper);
+      expect(BoardTheme.auto.resolve(systemDark: true), BoardTheme.dusk);
+      for (final b in BoardTheme.values.skip(1)) {
+        expect(b.resolve(systemDark: true), b);
+        expect(b.resolve(systemDark: false), b);
+      }
+    });
+
+    test('the retro LCD themes are all in the theme pack; free themes are modern', () {
+      final retro = BoardTheme.values.where((b) => b.retro).toList();
+      expect(retro, [BoardTheme.lime, BoardTheme.amber, BoardTheme.ice, BoardTheme.mono, BoardTheme.night]);
+      expect(retro.every((b) => b.pack == Pack.themes), isTrue);
+      expect(BoardTheme.values.where((b) => b.pack == null).any((b) => b.retro), isFalse);
     });
   });
 

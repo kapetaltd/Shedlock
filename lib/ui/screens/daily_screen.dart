@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import '../../core/core.dart';
 import '../../services/daily_service.dart';
 import '../format.dart';
-import '../theme/lcd_theme.dart';
-import '../widgets/lcd_button.dart';
+import '../theme/app_theme.dart';
+import '../widgets/app_button.dart';
 import '../widgets/slice_grid.dart';
 import 'daily_result_screen.dart';
 import 'game_screen.dart';
@@ -73,67 +73,66 @@ class _DailyScreenState extends State<DailyScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('DAILY', style: pixelStyle(12, color: LcdPalette.inkMid)),
-                  const SizedBox(height: 10),
-                  Text('#${daily.todayNumber}', style: pixelStyle(36)),
-                  const SizedBox(height: 10),
-                  Text('${daily.todayKey} UTC', style: pixelStyle(8, color: LcdPalette.inkMid)),
+                  Txt('Daily', role: TextRole.heading, color: Palette.inkMid),
+                  SizedBox(height: Palette.retro ? 10 : 0),
+                  Text('#${daily.todayNumber}', style: textStyle(TextRole.display)),
+                  SizedBox(height: Palette.retro ? 10 : 4),
+                  Txt('${daily.todayKey} UTC', role: TextRole.caption),
                   const SizedBox(height: 24),
-                  Text(
-                    streak > 0 ? 'STREAK $streak  ·  BEST ${daily.bestStreak}' : 'NO STREAK YET',
-                    style: pixelStyle(10),
+                  Txt(
+                    streak > 0 ? 'Streak $streak  ·  Best ${daily.bestStreak}' : 'No streak yet',
+                    role: TextRole.label,
                   ),
                   const SizedBox(height: 28),
                   ...switch (status) {
                     DailyStatus.available => [
-                        Text(
-                          'ONE RANKED ATTEMPT.\nSAME BOARD FOR EVERYONE.\nONE FREE REWIND, NO ADS.',
-                          textAlign: TextAlign.center,
-                          style: pixelStyle(8, height: 2),
+                        Txt(
+                          'One ranked attempt.\nSame board for everyone.\nOne free rewind, no ads.',
+                          align: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        LcdButton(
-                          label: 'PLAY RANKED',
+                        AppButton(
+                          label: 'Play ranked',
                           filled: true,
                           onPressed: () => _play(ranked: true),
                         ),
                       ],
                     DailyStatus.completed => [
-                        Text(formatScore(record!.score), style: pixelStyle(28)),
+                        Text(formatScore(record!.score), style: textStyle(TextRole.title, size: Palette.retro ? 28 : 40)),
                         const SizedBox(height: 14),
                         SliceGrid(slices: record.slices, cell: 26),
                         const SizedBox(height: 24),
-                        LcdButton(
-                          label: 'SHARE RESULT',
+                        AppButton(
+                          label: 'Share result',
                           filled: true,
                           onPressed: () => _showResult(record),
                         ),
                         const SizedBox(height: 14),
-                        LcdButton(
-                          label: 'PRACTICE',
-                          sublabel: 'UNRANKED',
+                        AppButton(
+                          label: 'Practice',
+                          sublabel: 'Unranked',
                           onPressed: () => _play(ranked: false),
                         ),
                       ],
                     DailyStatus.abandoned => [
-                        Text(
-                          'RANKED ATTEMPT\nNOT FINISHED',
-                          textAlign: TextAlign.center,
-                          style: pixelStyle(10, height: 1.8),
+                        Txt(
+                          'Ranked attempt\nnot finished',
+                          role: TextRole.label,
+                          align: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        LcdButton(
-                          label: 'PRACTICE',
-                          sublabel: 'UNRANKED',
+                        AppButton(
+                          label: 'Practice',
+                          sublabel: 'Unranked',
                           filled: true,
                           onPressed: () => _play(ranked: false),
                         ),
                       ],
                   },
                   const SizedBox(height: 28),
-                  Text('NEXT PUZZLE IN $countdown', style: pixelStyle(8, color: LcdPalette.inkMid)),
+                  Txt('Next puzzle in $countdown', role: TextRole.caption),
                   const SizedBox(height: 20),
-                  LcdButton(label: 'BACK', fontSize: 12, onPressed: () => Navigator.of(context).pop()),
+                  AppButton(label: 'Back', compact: true, onPressed: () => Navigator.of(context).pop()),
                 ],
               ),
             ),

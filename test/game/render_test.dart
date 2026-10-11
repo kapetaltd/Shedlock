@@ -4,14 +4,14 @@ import 'dart:ui' as ui;
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shedlock/core/core.dart';
 import 'package:shedlock/game/shedlock_game.dart';
-import 'package:shedlock/ui/theme/lcd_theme.dart';
+import 'package:shedlock/ui/theme/app_theme.dart';
 import 'package:shedlock/ui/widgets/slice_grid.dart';
 
 import '../core/helpers.dart';
+import '../support/fonts.dart';
 
 /// Plays a bot run until the board shows shed walls and a runner.
 RunSession interestingRun() {
@@ -43,43 +43,59 @@ RunSession interestingRun() {
 }
 
 void main() {
-  setUpAll(() async {
-    final font = File('assets/fonts/PressStart2P-Regular.ttf').readAsBytesSync();
-    final loader = FontLoader(pixelFont)..addFont(Future.value(ByteData.view(font.buffer)));
-    await loader.load();
-  });
+  setUpAll(loadAppFonts);
+  tearDown(() => Palette.apply(BoardTheme.paper));
 
-  testWidgets('renders a mid-game board with walls, runner and effects', (tester) async {
-    final session = interestingRun();
+  for (final theme in [BoardTheme.paper, BoardTheme.dusk, BoardTheme.lime]) {
+    testWidgets('renders a mid-game board with walls, runner and effects (${theme.name})', (tester) async {
+      Palette.apply(theme);
+      final session = interestingRun();
+      final game = ShedlockGame(session: session);
+      final key = GlobalKey();
+      await tester.binding.setSurfaceSize(const Size(400, 600));
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: key,
+          child: ColoredBox(
+            color: Palette.background,
+            child: GameWidget(game: game),
+          ),
+        ),
+      );
+      await tester.pump();
+      final s = session.state;
+      game.effects.handle([FoodEaten(Food(id: -1, pos: s.head, kind: FoodKind.normal, spawnTick: 0), 14)]);
+      game.update(0.1);
+      await tester.pump(const Duration(milliseconds: 16));
+
+      expect(tester.takeException(), isNull);
+      expect(s.shedWalls, isNotEmpty);
+
+      final out = Platform.environment['SHEDLOCK_SHOTS'];
+      if (out != null) {
+        await tester.runAsync(() async {
+          final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+          final image = await boundary.toImage(pixelRatio: 2);
+          final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+          File('$out/render-midgame-${theme.name}.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+        });
+      }
+    });
+  }
+
+  testWidgets('renders the board while dying (modern desaturate) without errors', (tester) async {
+    final session = RunSession.endless(seed: 4);
     final game = ShedlockGame(session: session);
-    final key = GlobalKey();
-    await tester.binding.setSurfaceSize(const Size(400, 600));
-    await tester.pumpWidget(
-      RepaintBoundary(
-        key: key,
-        child: ColoredBox(color: LcdPalette.screen, child: GameWidget(game: game)),
-      ),
-    );
+    await tester.pumpWidget(GameWidget(game: game));
     await tester.pump();
-    final s = session.state;
-    game.effects.handle([
-      FoodEaten(Food(id: -1, pos: s.head, kind: FoodKind.normal, spawnTick: 0), 14),
-    ]);
-    game.update(0.1);
-    await tester.pump(const Duration(milliseconds: 16));
-
-    expect(tester.takeException(), isNull);
-    expect(s.shedWalls, isNotEmpty);
-
-    final out = Platform.environment['SHEDLOCK_SHOTS'];
-    if (out != null) {
-      await tester.runAsync(() async {
-        final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-        final image = await boundary.toImage(pixelRatio: 2);
-        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-        File('$out/render-midgame.png').writeAsBytesSync(bytes!.buffer.asUint8List());
-      });
+    game.turn(session.state.heading);
+    for (var i = 0; i < 400 && !session.isOver; i++) {
+      game.update(0.05);
     }
+    expect(game.diedAt, isNotNull);
+    game.update(0.3);
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('renders the daily summary grid for every slice kind', (tester) async {
@@ -91,7 +107,7 @@ void main() {
           child: RepaintBoundary(
             key: key,
             child: ColoredBox(
-              color: LcdPalette.screen,
+              color: Palette.background,
               child: const Padding(
                 padding: EdgeInsets.all(8),
                 child: SliceGrid(slices: SliceKind.values, cell: 40),

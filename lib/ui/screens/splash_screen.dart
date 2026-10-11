@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../config/app_config.dart';
-import '../theme/lcd_theme.dart';
+import '../theme/app_theme.dart';
 import '../widgets/blink.dart';
 import '../widgets/logo_art.dart';
 import 'home_screen.dart';
@@ -51,14 +51,11 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const LogoArt(pixel: 8),
-                const SizedBox(height: 28),
-                Text(AppConfig.appName.toUpperCase(), style: pixelStyle(28)),
-                const SizedBox(height: 16),
-                Blink(
-                  child: Text(AppConfig.tagline.toUpperCase(),
-                      textAlign: TextAlign.center, style: pixelStyle(8, color: LcdPalette.inkMid)),
-                ),
+                const LogoArt(size: 168),
+                SizedBox(height: Palette.retro ? 28 : 20),
+                Txt(AppConfig.appName, role: TextRole.hero),
+                SizedBox(height: Palette.retro ? 16 : 8),
+                Blink(child: Txt(AppConfig.tagline, role: TextRole.caption, align: TextAlign.center)),
               ],
             ),
           ),

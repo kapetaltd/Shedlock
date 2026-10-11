@@ -6,7 +6,7 @@ import 'package:shedlock/game/shedlock_game.dart';
 import 'package:shedlock/services/storage_service.dart';
 import 'package:shedlock/ui/screens/game_screen.dart';
 import 'package:shedlock/ui/screens/shop_screen.dart';
-import 'package:shedlock/ui/theme/lcd_theme.dart';
+import 'package:shedlock/ui/theme/app_theme.dart';
 
 import 'test_env.dart';
 
@@ -32,7 +32,7 @@ Future<void> tapText(WidgetTester tester, String text) async {
 }
 
 void main() {
-  setUp(() => LcdPalette.apply(BoardTheme.lime));
+  setUp(() => Palette.apply(BoardTheme.paper));
 
   testWidgets('endless: run events logged; interstitial after the 3rd run in session 3',
       (tester) async {
@@ -43,7 +43,7 @@ void main() {
 
     for (var run = 1; run <= 3; run++) {
       await playAndDie(tester);
-      await tapText(tester, 'PLAY AGAIN');
+      await tapText(tester, 'Play again');
       expect(env.ads.interstitialsShown, run == 3 ? 1 : 0, reason: 'after run $run');
     }
     final names = env.analytics.names;
@@ -62,7 +62,7 @@ void main() {
     await tester.pump();
     for (var run = 1; run <= 4; run++) {
       await playAndDie(tester);
-      await tapText(tester, 'PLAY AGAIN');
+      await tapText(tester, 'Play again');
     }
     expect(env.ads.interstitialsShown, 0);
   });
@@ -73,7 +73,7 @@ void main() {
     await tester.pumpWidget(env.app(const GameScreen(seed: 4)));
     await tester.pump();
     await playAndDie(tester);
-    await tapText(tester, 'CONTINUE');
+    await tapText(tester, 'Continue');
     await tester.pump(const Duration(milliseconds: 100));
     expect(gameOf(tester).phase.value, PlayPhase.countdown);
     expect(env.analytics.names, containsAllInOrder(['ad_shown', 'ad_rewarded']));
@@ -85,8 +85,8 @@ void main() {
     await tester.pumpWidget(env.app(const ShopScreen()));
     await tester.pump();
 
-    expect(find.text('STRIPED ×'), findsOneWidget, reason: 'locked');
-    await tester.tap(find.text('STRIPED ×'));
+    expect(find.bySemanticsLabel('Striped, locked'), findsOneWidget);
+    await tester.tap(find.text('Striped'));
     await tester.pump();
     expect(env.storage.loadout.skin, SnakeSkin.classic);
 
@@ -94,20 +94,34 @@ void main() {
     await tester.tap(find.text('£1.99').at(0));
     await tester.pump();
     expect(env.iap.owned.value, contains(Pack.skins));
-    expect(find.text('OWNED'), findsOneWidget);
-    await tester.tap(find.text('STRIPED'));
+    expect(find.text('Owned'), findsOneWidget);
+    expect(find.bySemanticsLabel('Striped'), findsOneWidget);
+    await tester.tap(find.text('Striped'));
     await tester.pump();
     expect(env.storage.loadout.skin, SnakeSkin.striped);
     expect(env.analytics.names, contains('iap_purchase'));
 
-    // Buy themes and switch the whole app to NIGHT.
+    // Buy themes and switch the whole app to a modern paid theme...
     await tester.tap(find.text('£1.99').last);
     await tester.pump();
-    await tester.tap(find.text('NIGHT'));
+    await tester.tap(find.text('Ink'));
+    await tester.pump();
+    expect(env.storage.loadout.theme, BoardTheme.ink);
+    expect(Palette.active, Palette.looks[BoardTheme.ink]);
+
+    // ...then to retro LCD: pixel font, upper-case copy, same screen.
+    await tester.tap(find.text('Night'));
     await tester.pump();
     expect(env.storage.loadout.theme, BoardTheme.night);
-    expect(LcdPalette.active, LcdPalette.themes[BoardTheme.night]);
+    expect(Palette.retro, isTrue);
     expect(find.text('SHOP'), findsOneWidget, reason: 'still on the shop after re-theming');
+    expect(tester.widget<Text>(find.text('SHOP')).style!.fontFamily, pixelFont);
+
+    // And back to Auto: modern again.
+    await tester.tap(find.text('AUTO'));
+    await tester.pump();
+    expect(Palette.theme, BoardTheme.paper);
+    expect(find.text('Shop'), findsOneWidget);
   });
 
   testWidgets('remove ads shows as owned', (tester) async {
@@ -115,7 +129,7 @@ void main() {
     final env = TestEnv(storage: MemoryStorageService()..ownedPacks = {Pack.removeAds});
     await tester.pumpWidget(env.app(const ShopScreen()));
     await tester.pump();
-    expect(find.text('OWNED'), findsOneWidget);
+    expect(find.text('Owned'), findsOneWidget);
     expect(find.text('£2.99'), findsNothing);
   });
 }

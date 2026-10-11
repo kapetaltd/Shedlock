@@ -107,18 +107,48 @@ later phases stay consistent.
 - Settings: sound, haptics and screen shake (motion sensitivity),
   persisted; privacy options (UMP) shown only where required; restore
   purchases; how to play; credits.
-- Icon: generated from the logo pixel art (`tool/gen_icon.py`) → launcher
+- Icon (replaced in Phase 7): generated from the logo pixel art → launcher
   icons (adaptive on Android) and a native splash in the LCD colour, so
   there is no white flash. Display name "Shedlock" on both platforms.
 - Edge cases handled:
   - pause on any lifecycle change;
   - home refreshes on resume, so the daily puzzle rolls over at UTC midnight;
   - double taps between runs are guarded;
-  - system text scale is capped at 1.3x for the pixel font;
+  - system text scale is capped (1.3x for the pixel font, 1.4x for the modern one);
   - corrupt stored data falls back to defaults;
   - a backwards clock never breaks the streak.
 - Release signing reads `android/key.properties` and falls back to the debug
   key without it.
+
+## Phase 7 notes (modern look)
+- New default look, "clean minimal": warm off-white board with a faint dot
+  grid, a smooth tapering teal snake with eyes, coral food with a soft
+  pulse, yellow runners that slide between cells, rounded obstacle and
+  shed-wall tiles (walls shrink as they expire), soft shadows, and the
+  board desaturating on death. Font: Nunito (SIL OFL), bundled as four
+  static weights.
+- Everything visual goes through `Palette` (`lib/game/palette.dart`): one
+  `Look` per theme, with semantic colours (background, surface, board,
+  snake, food, runner, ...) and a `retro` flag. Text goes through
+  `TextRole` + `Txt` (`lib/ui/theme/app_theme.dart`), so each look picks
+  its own font and sizes. Copy is written in sentence case and shown in
+  caps in the retro look.
+- Themes (`BoardTheme`):
+  - free: **Auto** (default; Paper in light mode, Dusk in dark mode, and
+    switches live), **Paper** and **Dusk**;
+  - Theme Pack: Sage, Sand and Ink, plus **Retro LCD** in Lime, Amber, Ice,
+    Mono and Night.
+  Picking a Retro LCD theme switches the whole app to the original pixel
+  style; that code path is unchanged. A refunded Theme Pack falls back to
+  Auto.
+- Skins and trails have modern versions (Spotted, Outline, Sparkle) and keep
+  their pixel versions in retro.
+- Icon and splash: a new vector logo (padlock with a snake coiled around
+  it). `tool/render_icon_test.dart` renders it with the same painter the
+  app uses; the native splash has light and dark variants.
+- Tests: every screen in every theme at 360×720 with real fonts (no
+  overflows), Auto following dark mode live, chosen themes ignoring it,
+  refund fallback, and theme switching inside the shop.
 
 ## Environment notes
 - The cloud container has no `/dev/kvm`, so no Android emulator. UI

@@ -53,13 +53,13 @@ void main() {
     final share = FakeShareService();
     await tester.pumpWidget(app(storage, share));
 
-    expect(find.text('#3 · PLAY'), findsOneWidget);
-    await tapAndSettle(tester, 'DAILY');
+    expect(find.text('#3 · Play'), findsOneWidget);
+    await tapAndSettle(tester, 'Daily');
     expect(find.text('#3'), findsOneWidget);
     expect(find.text('$todayKey UTC'), findsOneWidget);
 
-    await tapAndSettle(tester, 'PLAY RANKED');
-    expect(find.text('DAILY #3 · RANKED'), findsOneWidget);
+    await tapAndSettle(tester, 'Play ranked');
+    expect(find.text('Daily #3 · Ranked'), findsOneWidget);
     expect(storage.dailyAttemptStarted, todayKey, reason: 'attempt used on start');
 
     final game = gameOf(tester);
@@ -68,18 +68,18 @@ void main() {
     await dieNow(tester, game);
 
     // Ranked: free rewind or end the run. No ads, no continue, no replay.
-    expect(find.text('REWIND 3S'), findsOneWidget);
-    expect(find.text('END RUN'), findsOneWidget);
-    expect(find.text('CONTINUE'), findsNothing);
-    expect(find.text('PLAY AGAIN'), findsNothing);
+    expect(find.text('Rewind 3s'), findsOneWidget);
+    expect(find.text('End run'), findsOneWidget);
+    expect(find.text('Continue'), findsNothing);
+    expect(find.text('Play again'), findsNothing);
 
-    await tapAndSettle(tester, 'END RUN');
-    expect(find.text('SHEDLOCK #3'), findsOneWidget);
-    expect(find.text('STREAK 1  ·  BEST 1'), findsOneWidget);
+    await tapAndSettle(tester, 'End run');
+    expect(find.text('Shedlock #3'), findsOneWidget);
+    expect(find.text('Streak 1  ·  Best 1'), findsOneWidget);
     expect(storage.lastDailyRecord?.dayKey, todayKey);
     expect(storage.streak.current, 1);
 
-    await tester.tap(find.text('SHARE'));
+    await tester.tap(find.text('Share'));
     await tester.pump();
     expect(lastShare.shared, hasLength(1));
     expect(lastShare.shared.single, startsWith('Shedlock #3 🐍 '));
@@ -92,14 +92,14 @@ void main() {
     expect(start.params['mode'], 'daily_ranked');
     expect(_lastEnv.ads.interstitialsShown, 0);
 
-    await tapAndSettle(tester, 'DONE');
+    await tapAndSettle(tester, 'Done');
     // Back on the hub: already played, so share or practice.
-    expect(find.text('SHARE RESULT'), findsOneWidget);
-    expect(find.text('PLAY RANKED'), findsNothing);
-    expect(find.text('PRACTICE'), findsOneWidget);
+    expect(find.text('Share result'), findsOneWidget);
+    expect(find.text('Play ranked'), findsNothing);
+    expect(find.text('Practice'), findsOneWidget);
 
-    await tapAndSettle(tester, 'PRACTICE');
-    expect(find.text('DAILY #3 · PRACTICE'), findsOneWidget);
+    await tapAndSettle(tester, 'Practice');
+    expect(find.text('Daily #3 · Practice'), findsOneWidget);
     expect(gameOf(tester).session.ranked, isFalse);
   });
 
@@ -107,10 +107,10 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(420, 900));
     final storage = MemoryStorageService()..dailyAttemptStarted = todayKey;
     await tester.pumpWidget(app(storage, FakeShareService()));
-    expect(find.text('#3 · PRACTICE'), findsOneWidget);
-    await tapAndSettle(tester, 'DAILY');
-    expect(find.text('PLAY RANKED'), findsNothing);
-    expect(find.textContaining('NOT FINISHED'), findsOneWidget);
+    expect(find.text('#3 · Practice'), findsOneWidget);
+    await tapAndSettle(tester, 'Daily');
+    expect(find.text('Play ranked'), findsNothing);
+    expect(find.textContaining('not finished'), findsOneWidget);
   });
 
   testWidgets('a new UTC day brings a new ranked attempt and keeps the streak', (tester) async {
@@ -120,6 +120,6 @@ void main() {
       ..streak = Streak().record(todayKey);
     final tomorrow = AppConfig.dailyEpoch.add(const Duration(days: 3, seconds: 5));
     await tester.pumpWidget(app(storage, FakeShareService(), now: tomorrow));
-    expect(find.text('#4 · PLAY · STREAK 1'), findsOneWidget);
+    expect(find.text('#4 · Play · Streak 1'), findsOneWidget);
   });
 }

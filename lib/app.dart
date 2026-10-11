@@ -12,7 +12,7 @@ import 'services/settings.dart';
 import 'services/share_service.dart';
 import 'services/storage_service.dart';
 import 'ui/screens/splash_screen.dart';
-import 'ui/theme/lcd_theme.dart';
+import 'ui/theme/app_theme.dart';
 
 class ShedlockApp extends StatefulWidget {
   const ShedlockApp({
@@ -44,7 +44,7 @@ class ShedlockApp extends StatefulWidget {
   State<ShedlockApp> createState() => _ShedlockAppState();
 }
 
-class _ShedlockAppState extends State<ShedlockApp> {
+class _ShedlockAppState extends State<ShedlockApp> with WidgetsBindingObserver {
   late final ValueNotifier<Loadout> _loadout;
   late final ValueNotifier<GameSettings> _settings;
   late final FeedbackService _feedback;
@@ -55,17 +55,27 @@ class _ShedlockAppState extends State<ShedlockApp> {
     _loadout = ValueNotifier(widget.storage.loadout.restrictTo(widget.iap.owned.value));
     _loadout.addListener(_onLoadoutChanged);
     widget.iap.owned.addListener(_onOwnedChanged);
-    LcdPalette.apply(_loadout.value.theme);
+    Palette.apply(_loadout.value.theme, systemDark: _systemDark);
+    WidgetsBinding.instance.addObserver(this);
     _settings = ValueNotifier(widget.storage.settings)
       ..addListener(() => widget.storage.setSettings(_settings.value));
     _feedback = FeedbackService(sound: widget.sound, haptics: widget.haptics, settings: _settings);
   }
 
+  bool get _systemDark =>
+      WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
+
   void _onLoadoutChanged() {
     widget.storage.setLoadout(_loadout.value);
-    final theme = _loadout.value.theme;
-    if (LcdPalette.active == LcdPalette.themes[theme]) return;
-    LcdPalette.apply(theme);
+    _applyTheme();
+  }
+
+  // "Auto" follows the device's dark mode, live.
+  @override
+  void didChangePlatformBrightness() => _applyTheme();
+
+  void _applyTheme() {
+    if (!Palette.apply(_loadout.value.theme, systemDark: _systemDark)) return;
     // Palette colours are read at build time everywhere, so rebuild the
     // whole tree in place (navigation state is kept).
     void rebuild(Element e) {
@@ -82,6 +92,7 @@ class _ShedlockAppState extends State<ShedlockApp> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     widget.iap.owned.removeListener(_onOwnedChanged);
     _loadout.dispose();
     _settings.dispose();
@@ -90,7 +101,7 @@ class _ShedlockAppState extends State<ShedlockApp> {
 
   @override
   Widget build(BuildContext context) {
-    final dark = _loadout.value.theme == BoardTheme.night;
+    final dark = Palette.dark;
     return Services(
       storage: widget.storage,
       ads: widget.ads,
@@ -106,11 +117,11 @@ class _ShedlockAppState extends State<ShedlockApp> {
         child: MaterialApp(
           title: AppConfig.appName,
           debugShowCheckedModeBanner: false,
-          theme: buildLcdTheme(),
-          // The pixel font is already large; cap system text scaling so
-          // layouts don't overflow, while still honouring the setting.
+          theme: buildAppTheme(),
+          // Cap system text scaling so layouts don't overflow, while still
+          // honouring the setting (the pixel font is already large).
           builder: (context, child) => MediaQuery.withClampedTextScaling(
-            maxScaleFactor: 1.3,
+            maxScaleFactor: Palette.retro ? 1.3 : 1.4,
             child: child!,
           ),
           home: widget.home,

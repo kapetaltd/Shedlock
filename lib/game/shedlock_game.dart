@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../core/core.dart';
+import 'palette.dart';
 import 'components/board_component.dart';
 import 'components/effects_component.dart';
 
@@ -141,6 +142,10 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
   /// Seconds of play, for the visual animations (blink, pulse).
   double animTime = 0;
 
+  /// [animTime] when the snake died (null while alive). Drives the death
+  /// animation.
+  double? diedAt;
+
   /// Screen shake.
   double _shakeLeft = 0;
   double _shakeStrength = 0;
@@ -166,10 +171,11 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
 
   void _layout(Vector2 size) {
     final c = _session.state.config;
-    // Leave room for the 3px frame on each side.
+    // Leave room for the frame (retro) or the rounded edge and shadow.
+    final pad = Palette.retro ? 8.0 : 20.0;
     final cell = math.max(
       4.0,
-      math.min((size.x - 8) / c.width, (size.y - 8) / c.height).floorToDouble(),
+      math.min((size.x - pad) / c.width, (size.y - pad) / c.height).floorToDouble(),
     );
     final w = cell * c.width;
     final h = cell * c.height;
@@ -223,7 +229,8 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
     if (_session.isOver) {
       previous = _session.state;
       phase.value = PlayPhase.over;
-      shake(0.45, metrics.cell * 0.5);
+      diedAt = animTime;
+      shake(0.45, metrics.cell * (Palette.retro ? 0.5 : 0.3));
       hud.value = HudData.of(_session.state, best);
       onDeath?.call();
       return false;
@@ -302,6 +309,7 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
   bool _resumeAfter(bool ok) {
     if (!ok) return false;
     previous = _session.state;
+    diedAt = null;
     effects.clear();
     trail.clear();
     hud.value = HudData.of(_session.state, best);
@@ -313,6 +321,7 @@ class ShedlockGame extends FlameGame with KeyboardEvents {
   void restart(RunSession session) {
     _session = session;
     previous = session.state;
+    diedAt = null;
     effects.clear();
     trail.clear();
     clock.reset();
