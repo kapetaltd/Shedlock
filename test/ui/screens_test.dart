@@ -21,9 +21,9 @@ void main() {
     expect(formatScore(1234567), '1,234,567');
     expect(formatMultiplier(100), '×1.0');
     expect(formatMultiplier(140), '×1.4');
-    Palette.apply(BoardTheme.lime);
+    Palette.apply(AppTheme.lime);
     expect(formatMultiplier(140), 'x1.4', reason: 'the pixel font look uses a plain x');
-    Palette.apply(BoardTheme.paper);
+    Palette.apply(AppTheme.paper);
   });
 
   testWidgets('home shows the name, tagline and menu', (tester) async {

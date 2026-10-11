@@ -104,8 +104,8 @@ class Look {
 /// The active colours, shared by the game renderer and the UI.
 /// Original colours. The active look follows the player's theme.
 class Palette {
-  static const Map<BoardTheme, Look> looks = {
-    BoardTheme.paper: Look(
+  static const Map<AppTheme, Look> looks = {
+    AppTheme.paper: Look(
       background: Color(0xFFF5F3EE),
       surface: Color(0xFFFFFFFF),
       line: Color(0xFFE4DFD6),
@@ -124,7 +124,7 @@ class Palette {
       wall: Color(0xFF9CCFC9),
       shadow: Color(0x241F2A2E),
     ),
-    BoardTheme.dusk: Look(
+    AppTheme.dusk: Look(
       background: Color(0xFF12161C),
       surface: Color(0xFF1C222B),
       line: Color(0xFF2A323D),
@@ -144,7 +144,7 @@ class Palette {
       shadow: Color(0x66000000),
       dark: true,
     ),
-    BoardTheme.sage: Look(
+    AppTheme.sage: Look(
       background: Color(0xFFEDF1E8),
       surface: Color(0xFFFAFBF7),
       line: Color(0xFFD8DFD0),
@@ -163,7 +163,7 @@ class Palette {
       wall: Color(0xFFA9C2AC),
       shadow: Color(0x22243127),
     ),
-    BoardTheme.sand: Look(
+    AppTheme.sand: Look(
       background: Color(0xFFF5ECE0),
       surface: Color(0xFFFFFAF3),
       line: Color(0xFFE6D9C7),
@@ -182,7 +182,7 @@ class Palette {
       wall: Color(0xFFE2B9A0),
       shadow: Color(0x2233261C),
     ),
-    BoardTheme.ink: Look(
+    AppTheme.ink: Look(
       background: Color(0xFF0B0B0D),
       surface: Color(0xFF17171A),
       line: Color(0xFF26262B),
@@ -202,7 +202,7 @@ class Palette {
       shadow: Color(0x80000000),
       dark: true,
     ),
-    BoardTheme.lime: Look.lcd(
+    AppTheme.lime: Look.lcd(
       screen: Color(0xFFB2C69A),
       ghost: Color(0x12203018),
       ink: Color(0xFF1E2A1B),
@@ -210,7 +210,7 @@ class Palette {
       inkSoft: Color(0xFF7D9468),
       shadow: Color(0x2E1E2A1B),
     ),
-    BoardTheme.amber: Look.lcd(
+    AppTheme.amber: Look.lcd(
       screen: Color(0xFFE6C17E),
       ghost: Color(0x14402808),
       ink: Color(0xFF3A2208),
@@ -218,7 +218,7 @@ class Palette {
       inkSoft: Color(0xFFA98048),
       shadow: Color(0x2E3A2208),
     ),
-    BoardTheme.ice: Look.lcd(
+    AppTheme.ice: Look.lcd(
       screen: Color(0xFFAFCCD6),
       ghost: Color(0x12102A36),
       ink: Color(0xFF102A36),
@@ -226,7 +226,7 @@ class Palette {
       inkSoft: Color(0xFF6F94A3),
       shadow: Color(0x2E102A36),
     ),
-    BoardTheme.mono: Look.lcd(
+    AppTheme.mono: Look.lcd(
       screen: Color(0xFFC6C8C1),
       ghost: Color(0x121C1D1B),
       ink: Color(0xFF1C1D1B),
@@ -235,7 +235,7 @@ class Palette {
       shadow: Color(0x2E1C1D1B),
     ),
     // Inverted: bright pixels on a dark screen.
-    BoardTheme.night: Look.lcd(
+    AppTheme.night: Look.lcd(
       screen: Color(0xFF162113),
       ghost: Color(0x10B6E07E),
       ink: Color(0xFFB6E07E),
@@ -246,13 +246,13 @@ class Palette {
     ),
   };
 
-  /// The theme in use, already resolved (never [BoardTheme.auto]).
-  static BoardTheme theme = BoardTheme.paper;
-  static Look active = looks[BoardTheme.paper]!;
+  /// The theme in use, already resolved (never [AppTheme.auto]).
+  static AppTheme theme = AppTheme.paper;
+  static Look active = looks[AppTheme.paper]!;
 
-  /// Switches the look. [systemDark] decides what [BoardTheme.auto] means.
+  /// Switches the look. [systemDark] decides what [AppTheme.auto] means.
   /// Returns whether anything changed.
-  static bool apply(BoardTheme choice, {bool systemDark = false}) {
+  static bool apply(AppTheme choice, {bool systemDark = false}) {
     final resolved = choice.resolve(systemDark: systemDark);
     if (resolved == theme) return false;
     theme = resolved;

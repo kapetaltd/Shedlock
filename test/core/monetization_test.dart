@@ -54,7 +54,7 @@ void main() {
     test('every paid item belongs to a pack; free defaults have none', () {
       expect(SnakeSkin.classic.pack, isNull);
       expect(Trail.none.pack, isNull);
-      for (final b in [BoardTheme.auto, BoardTheme.paper, BoardTheme.dusk]) {
+      for (final b in [AppTheme.auto, AppTheme.paper, AppTheme.dusk]) {
         expect(b.pack, isNull, reason: '$b is free');
       }
       for (final s in SnakeSkin.values.skip(1)) {
@@ -63,40 +63,40 @@ void main() {
       for (final t in Trail.values.skip(1)) {
         expect(t.pack, Pack.trails);
       }
-      for (final b in BoardTheme.values.skip(3)) {
+      for (final b in AppTheme.values.skip(3)) {
         expect(b.pack, Pack.themes);
       }
     });
 
     test('items from packs the player no longer owns fall back to free ones', () {
-      const l = Loadout(skin: SnakeSkin.hollow, trail: Trail.dust, theme: BoardTheme.night);
+      const l = Loadout(skin: SnakeSkin.hollow, trail: Trail.dust, theme: AppTheme.night);
       final r = l.restrictTo({Pack.trails});
-      expect((r.skin, r.trail, r.theme), (SnakeSkin.classic, Trail.dust, BoardTheme.auto));
+      expect((r.skin, r.trail, r.theme), (SnakeSkin.classic, Trail.dust, AppTheme.auto));
       expect(identical(l.restrictTo(Pack.values.toSet()).skin, SnakeSkin.hollow), isTrue);
     });
 
     test('loadout json round trip, tolerant of unknown names', () {
-      const l = Loadout(skin: SnakeSkin.dotted, trail: Trail.ghost, theme: BoardTheme.amber);
+      const l = Loadout(skin: SnakeSkin.dotted, trail: Trail.ghost, theme: AppTheme.amber);
       final back = Loadout.fromJson(l.toJson());
       expect((back.skin, back.trail, back.theme), (l.skin, l.trail, l.theme));
       final junk = Loadout.fromJson({'skin': 'rainbow', 'theme': 7});
-      expect((junk.skin, junk.trail, junk.theme), (SnakeSkin.classic, Trail.none, BoardTheme.auto));
+      expect((junk.skin, junk.trail, junk.theme), (SnakeSkin.classic, Trail.none, AppTheme.auto));
     });
 
     test('auto follows dark mode; every other theme ignores it', () {
-      expect(BoardTheme.auto.resolve(systemDark: false), BoardTheme.paper);
-      expect(BoardTheme.auto.resolve(systemDark: true), BoardTheme.dusk);
-      for (final b in BoardTheme.values.skip(1)) {
+      expect(AppTheme.auto.resolve(systemDark: false), AppTheme.paper);
+      expect(AppTheme.auto.resolve(systemDark: true), AppTheme.dusk);
+      for (final b in AppTheme.values.skip(1)) {
         expect(b.resolve(systemDark: true), b);
         expect(b.resolve(systemDark: false), b);
       }
     });
 
     test('the retro LCD themes are all in the theme pack; free themes are modern', () {
-      final retro = BoardTheme.values.where((b) => b.retro).toList();
-      expect(retro, [BoardTheme.lime, BoardTheme.amber, BoardTheme.ice, BoardTheme.mono, BoardTheme.night]);
+      final retro = AppTheme.values.where((b) => b.retro).toList();
+      expect(retro, [AppTheme.lime, AppTheme.amber, AppTheme.ice, AppTheme.mono, AppTheme.night]);
       expect(retro.every((b) => b.pack == Pack.themes), isTrue);
-      expect(BoardTheme.values.where((b) => b.pack == null).any((b) => b.retro), isFalse);
+      expect(AppTheme.values.where((b) => b.pack == null).any((b) => b.retro), isFalse);
     });
   });
 

@@ -35,7 +35,7 @@ enum Trail {
 ///
 /// [auto] follows the device: [paper] in light mode, [dusk] in dark mode.
 /// The [retro] themes switch everything to the monochrome LCD style.
-enum BoardTheme {
+enum AppTheme {
   auto(null, 'Auto'),
   paper(null, 'Paper'),
   dusk(null, 'Dusk'),
@@ -48,41 +48,33 @@ enum BoardTheme {
   mono(Pack.themes, 'Mono', retro: true),
   night(Pack.themes, 'Night', retro: true);
 
-  const BoardTheme(this.pack, this.label, {this.retro = false});
+  const AppTheme(this.pack, this.label, {this.retro = false});
   final Pack? pack;
   final String label;
   final bool retro;
 
   /// The concrete theme to show: [auto] picks by the device's dark mode.
-  BoardTheme resolve({required bool systemDark}) =>
-      this == auto ? (systemDark ? dusk : paper) : this;
+  AppTheme resolve({required bool systemDark}) => this == auto ? (systemDark ? dusk : paper) : this;
 }
 
 /// The player's selected cosmetics.
 class Loadout {
-  const Loadout({
-    this.skin = SnakeSkin.classic,
-    this.trail = Trail.none,
-    this.theme = BoardTheme.auto,
-  });
+  const Loadout({this.skin = SnakeSkin.classic, this.trail = Trail.none, this.theme = AppTheme.auto});
 
   final SnakeSkin skin;
   final Trail trail;
-  final BoardTheme theme;
+  final AppTheme theme;
 
-  Loadout copyWith({SnakeSkin? skin, Trail? trail, BoardTheme? theme}) => Loadout(
-        skin: skin ?? this.skin,
-        trail: trail ?? this.trail,
-        theme: theme ?? this.theme,
-      );
+  Loadout copyWith({SnakeSkin? skin, Trail? trail, AppTheme? theme}) =>
+      Loadout(skin: skin ?? this.skin, trail: trail ?? this.trail, theme: theme ?? this.theme);
 
   /// Falls back to the free item for anything the player no longer owns
   /// (e.g. after a refund).
   Loadout restrictTo(Set<Pack> owned) => Loadout(
-        skin: skin.pack == null || owned.contains(skin.pack) ? skin : SnakeSkin.classic,
-        trail: trail.pack == null || owned.contains(trail.pack) ? trail : Trail.none,
-        theme: theme.pack == null || owned.contains(theme.pack) ? theme : BoardTheme.auto,
-      );
+    skin: skin.pack == null || owned.contains(skin.pack) ? skin : SnakeSkin.classic,
+    trail: trail.pack == null || owned.contains(trail.pack) ? trail : Trail.none,
+    theme: theme.pack == null || owned.contains(theme.pack) ? theme : AppTheme.auto,
+  );
 
   Map<String, String> toJson() => {'skin': skin.name, 'trail': trail.name, 'theme': theme.name};
 
@@ -92,7 +84,7 @@ class Loadout {
     return Loadout(
       skin: pick(SnakeSkin.values, j['skin'], SnakeSkin.classic),
       trail: pick(Trail.values, j['trail'], Trail.none),
-      theme: pick(BoardTheme.values, j['theme'], BoardTheme.auto),
+      theme: pick(AppTheme.values, j['theme'], AppTheme.auto),
     );
   }
 }

@@ -92,7 +92,7 @@ later phases stay consistent.
 - IAP: four non-consumables. Ownership is cached locally and restorable.
   There is no server-side receipt validation, which is acceptable for
   cosmetics and Remove Ads.
-- Cosmetics: snake skins, trails and board themes (live palette switch).
+- Cosmetics: snake skins, trails and themes (live palette switch).
   The free defaults are always available. Items from a pack the player no
   longer owns fall back to the free ones.
 - Web and tests use `PlaceholderAdsService` + `FakeIapService`. On a device,
@@ -133,7 +133,8 @@ later phases stay consistent.
   `TextRole` + `Txt` (`lib/ui/theme/app_theme.dart`), so each look picks
   its own font and sizes. Copy is written in sentence case and shown in
   caps in the retro look.
-- Themes (`BoardTheme`):
+- Themes (`AppTheme`, renamed from `BoardTheme` since a theme now styles
+  the whole app; stored names are unchanged, so saved choices carry over):
   - free: **Auto** (default; Paper in light mode, Dusk in dark mode, and
     switches live), **Paper** and **Dusk**;
   - Theme Pack: Sage, Sand and Ink, plus **Retro LCD** in Lime, Amber, Ice,

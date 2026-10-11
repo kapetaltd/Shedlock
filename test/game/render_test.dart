@@ -44,9 +44,9 @@ RunSession interestingRun() {
 
 void main() {
   setUpAll(loadAppFonts);
-  tearDown(() => Palette.apply(BoardTheme.paper));
+  tearDown(() => Palette.apply(AppTheme.paper));
 
-  for (final theme in [BoardTheme.paper, BoardTheme.dusk, BoardTheme.lime]) {
+  for (final theme in [AppTheme.paper, AppTheme.dusk, AppTheme.lime]) {
     testWidgets('renders a mid-game board with walls, runner and effects (${theme.name})', (tester) async {
       Palette.apply(theme);
       final session = interestingRun();

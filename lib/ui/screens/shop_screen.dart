@@ -79,18 +79,18 @@ class ShopScreen extends StatelessWidget {
                       locked: (v) => v.pack != null && !owned.contains(v.pack),
                       onSelect: (v) => services.loadout.value = loadout.copyWith(trail: v),
                     ),
-                    _OptionRow<BoardTheme>(
+                    _OptionRow<AppTheme>(
                       title: 'Theme',
-                      values: [for (final t in BoardTheme.values) if (!t.retro) t],
+                      values: [for (final t in AppTheme.values) if (!t.retro) t],
                       selected: loadout.theme,
                       label: (v) => v.label,
                       locked: (v) => v.pack != null && !owned.contains(v.pack),
                       swatch: _swatch,
                       onSelect: (v) => services.loadout.value = loadout.copyWith(theme: v),
                     ),
-                    _OptionRow<BoardTheme>(
+                    _OptionRow<AppTheme>(
                       title: 'Retro LCD',
-                      values: [for (final t in BoardTheme.values) if (t.retro) t],
+                      values: [for (final t in AppTheme.values) if (t.retro) t],
                       selected: loadout.theme,
                       label: (v) => v.label,
                       locked: (v) => v.pack != null && !owned.contains(v.pack),
@@ -114,9 +114,9 @@ class ShopScreen extends StatelessWidget {
 
 /// (background, snake) colours for a theme's chip. Auto shows half of
 /// each of its two themes.
-(Color, Color, Color?) _swatch(BoardTheme t) {
+(Color, Color, Color?) _swatch(AppTheme t) {
   final look = Palette.looks[t.resolve(systemDark: false)]!;
-  final dark = t == BoardTheme.auto ? Palette.looks[BoardTheme.dusk]!.board : null;
+  final dark = t == AppTheme.auto ? Palette.looks[AppTheme.dusk]!.board : null;
   return (look.board, look.snake, dark);
 }
 

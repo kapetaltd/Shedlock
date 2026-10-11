@@ -31,8 +31,8 @@ Future<void> _write(String name, int size, {Color? fill, required Look look, dou
 
 void main() {
   test('render icon and splash', () async {
-    final paper = Palette.looks[BoardTheme.paper]!;
-    final dusk = Palette.looks[BoardTheme.dusk]!;
+    final paper = Palette.looks[AppTheme.paper]!;
+    final dusk = Palette.looks[AppTheme.dusk]!;
     // Full icon (iOS, legacy Android): square, opaque.
     await _write('icon.png', 1024, fill: paper.background, look: paper, logo: 0.74);
     // Android adaptive foreground: inside the 66% safe zone, transparent.

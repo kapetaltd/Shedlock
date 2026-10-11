@@ -231,9 +231,9 @@ in-app logo and the app icon stay identical.
 
 ## Themes
 
-All colours live in `lib/game/palette.dart`, one `Look` per `BoardTheme`.
+All colours live in `lib/game/palette.dart`, one `Look` per `AppTheme`.
 Text styles live in `lib/ui/theme/app_theme.dart` (`TextRole`). To add a
-theme, add a `BoardTheme` value (with its pack, or `null` for free) and its
+theme, add a `AppTheme` value (with its pack, or `null` for free) and its
 `Look`; the shop picks it up automatically. Themes marked `retro: true` use the
 pixel style for the whole app.
 

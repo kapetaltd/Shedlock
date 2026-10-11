@@ -32,7 +32,7 @@ Future<void> tapText(WidgetTester tester, String text) async {
 }
 
 void main() {
-  setUp(() => Palette.apply(BoardTheme.paper));
+  setUp(() => Palette.apply(AppTheme.paper));
 
   testWidgets('endless: run events logged; interstitial after the 3rd run in session 3',
       (tester) async {
@@ -106,13 +106,13 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('Ink'));
     await tester.pump();
-    expect(env.storage.loadout.theme, BoardTheme.ink);
-    expect(Palette.active, Palette.looks[BoardTheme.ink]);
+    expect(env.storage.loadout.theme, AppTheme.ink);
+    expect(Palette.active, Palette.looks[AppTheme.ink]);
 
     // ...then to retro LCD: pixel font, upper-case copy, same screen.
     await tester.tap(find.text('Night'));
     await tester.pump();
-    expect(env.storage.loadout.theme, BoardTheme.night);
+    expect(env.storage.loadout.theme, AppTheme.night);
     expect(Palette.retro, isTrue);
     expect(find.text('SHOP'), findsOneWidget, reason: 'still on the shop after re-theming');
     expect(tester.widget<Text>(find.text('SHOP')).style!.fontFamily, pixelFont);
@@ -120,7 +120,7 @@ void main() {
     // And back to Auto: modern again.
     await tester.tap(find.text('AUTO'));
     await tester.pump();
-    expect(Palette.theme, BoardTheme.paper);
+    expect(Palette.theme, AppTheme.paper);
     expect(find.text('Shop'), findsOneWidget);
   });
 
