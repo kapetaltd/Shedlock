@@ -90,7 +90,7 @@ test/         core/, game/, services/, ui/
 
 All ad unit IDs and store product IDs are in
 [`lib/config/monetization_config.dart`](lib/config/monetization_config.dart).
-They are currently Google's official **test** IDs.
+Development builds always use Google's official **test** ad IDs (see below).
 
 ### AdMob IDs
 Shedlock uses Kapeta's AdMob account. **Debug and profile builds always use
