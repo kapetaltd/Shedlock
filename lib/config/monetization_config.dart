@@ -24,8 +24,11 @@ class MonetizationConfig {
   static const iosAdMobAppId = 'ca-app-pub-3940256099942544~1458002511';
 
   // --- Live ad units (Kapeta's AdMob account) ------------------------------
-  static const androidRewardedLive = ''; // TODO: "Shedlock Android Rewarded"
-  static const androidInterstitialLive = ''; // TODO: "Shedlock Android Interstitial"
+  /// "Shedlock Android Rewarded" (extra rewind, continue).
+  static const androidRewardedLive = 'ca-app-pub-1575340671876931/6998720787';
+
+  /// "Shedlock Android Interstitial" (between runs).
+  static const androidInterstitialLive = 'ca-app-pub-1575340671876931/2019972251';
   static const iosRewardedLive = '';
   static const iosInterstitialLive = '';
 

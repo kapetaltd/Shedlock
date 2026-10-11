@@ -248,8 +248,8 @@ pixel style for the whole app.
 ## Release checklist
 
 - [x] `AppConfig.dailyEpoch` set to launch day: 1 November 2026 (Daily #1). Earlier days show as "Preview".
-- [ ] AdMob: Android app ID set; live ad unit IDs and iOS IDs still to add;
-      consent message set up in AdMob.
+- [x] AdMob Android: app ID and live ad units set.
+- [ ] AdMob iOS IDs (if launching on iOS); GDPR consent message in AdMob.
 - [ ] IAP products created in both stores; shop tested on a test track.
 - [ ] Firebase config files added (and the Gradle plugin on Android).
 - [x] Bundle ID set: `com.kapetaltd.shedlock`.
