@@ -29,7 +29,7 @@ class DailyResultScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Txt('Shedlock #${record.dailyNumber}', role: TextRole.heading),
+                  Txt('Shedlock ${dailyTag(record.dailyNumber)}', role: TextRole.heading),
                   SizedBox(height: Palette.retro ? 22 : 12),
                   Text(formatScore(record.score), style: textStyle(TextRole.display)),
                   const SizedBox(height: 6),

@@ -122,4 +122,14 @@ void main() {
     await tester.pumpWidget(app(storage, FakeShareService(), now: tomorrow));
     expect(find.text('#4 · Play · Streak 1'), findsOneWidget);
   });
+
+  testWidgets('before launch day the daily is a preview, not a negative number', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(420, 900));
+    final beforeLaunch = AppConfig.dailyEpoch.subtract(const Duration(days: 20));
+    await tester.pumpWidget(app(MemoryStorageService(), FakeShareService(), now: beforeLaunch));
+    expect(find.text('Preview · Play'), findsOneWidget);
+    await tapAndSettle(tester, 'Daily');
+    expect(find.text('Preview'), findsOneWidget);
+    expect(find.textContaining('#-'), findsNothing);
+  });
 }

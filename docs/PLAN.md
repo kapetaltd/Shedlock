@@ -42,7 +42,7 @@ later phases stay consistent.
 | Continue | Score kept; snake cut to 3 segments and placed at the nearest free spot facing 4 clear cells; resumes after a countdown |
 | Lock bonus | Flat 100 (configurable), independent of the multiplier |
 | Multiplier | +10% per segment above start length; points = 10 × multiplier, integer maths |
-| Daily #1 | 2026-10-01 UTC placeholder in `AppConfig.dailyEpoch` (set to launch day) |
+| Daily #1 | 2026-11-01 UTC (launch day) in `AppConfig.dailyEpoch`; earlier days show as "Preview" |
 | Firebase | Analytics no-ops until config files are added |
 | Git | One branch + draft PR per phase |
 

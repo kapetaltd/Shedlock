@@ -51,9 +51,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final daily = DailyService.of(context);
     final streak = daily.currentStreak;
     final dailySub = switch (daily.status) {
-      DailyStatus.available => '#${daily.todayNumber} · Play',
-      DailyStatus.completed => '#${daily.todayNumber} · ${formatScore(daily.todayRecord!.score)} pts',
-      DailyStatus.abandoned => '#${daily.todayNumber} · Practice',
+      DailyStatus.available => '${dailyTag(daily.todayNumber)} · Play',
+      DailyStatus.completed => '${dailyTag(daily.todayNumber)} · ${formatScore(daily.todayRecord!.score)} pts',
+      DailyStatus.abandoned => '${dailyTag(daily.todayNumber)} · Practice',
     };
     return Scaffold(
       body: SafeArea(

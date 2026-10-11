@@ -26,6 +26,10 @@ String dailyKey(DateTime time) {
 int dailySeed(DateTime time) => fnv1a32('shedlock-${dailyKey(time)}');
 
 /// Puzzle number for the UTC day containing [time]; [epoch]'s day is #1.
+/// How a daily number is shown: "#42", or "Preview" for days before launch
+/// (number 0 or below), which are playable but have no number yet.
+String dailyTag(int number) => number >= 1 ? '#$number' : 'Preview';
+
 int dailyNumber(DateTime time, DateTime epoch) {
   DateTime day(DateTime t) {
     final u = t.toUtc();

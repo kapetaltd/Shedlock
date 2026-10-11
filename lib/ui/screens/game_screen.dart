@@ -249,13 +249,13 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
   String? get _modeLabel => switch (widget.mode) {
         GameMode.endless => null,
-        GameMode.daily => '#${_game.session.dailyNumber}${_ranked ? '' : ' Practice'}',
+        GameMode.daily => '${dailyTag(_game.session.dailyNumber!)}${_ranked ? '' : ' Practice'}',
       };
 
   String? get _startTitle => switch (widget.mode) {
         GameMode.endless => null,
         GameMode.daily => _ranked
-            ? 'Daily #${_game.session.dailyNumber} · Ranked'
-            : 'Daily #${_game.session.dailyNumber} · Practice',
+            ? 'Daily ${dailyTag(_game.session.dailyNumber!)} · Ranked'
+            : 'Daily ${dailyTag(_game.session.dailyNumber!)} · Practice',
       };
 }

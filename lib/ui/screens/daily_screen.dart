@@ -75,7 +75,7 @@ class _DailyScreenState extends State<DailyScreen> {
                 children: [
                   Txt('Daily', role: TextRole.heading, color: Palette.inkMid),
                   SizedBox(height: Palette.retro ? 10 : 0),
-                  Text('#${daily.todayNumber}', style: textStyle(TextRole.display)),
+                  FittedBox(child: Text(say(dailyTag(daily.todayNumber)), style: textStyle(TextRole.display))),
                   SizedBox(height: Palette.retro ? 10 : 4),
                   Txt('${daily.todayKey} UTC', role: TextRole.caption),
                   const SizedBox(height: 24),

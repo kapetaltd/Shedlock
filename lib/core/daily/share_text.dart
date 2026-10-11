@@ -1,3 +1,4 @@
+import '../rng/seeds.dart';
 import '../run/run_result.dart';
 
 /// 1240 → "1,240".
@@ -79,7 +80,7 @@ String buildShareText(
   required String appName,
   required String tagline,
 }) {
-  final number = r.dailyNumber != null ? ' #${r.dailyNumber}' : '';
+  final number = r.dailyNumber != null ? ' ${dailyTag(r.dailyNumber!)}' : '';
   final practice = r.ranked ? '' : ' (practice)';
   final stats = [
     '🍎 ${r.foodEaten}',

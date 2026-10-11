@@ -92,6 +92,14 @@ void main() {
       expect(dailyNumber(DateTime.utc(2026, 11, 2), epoch), 2);
       expect(dailyNumber(DateTime.utc(2027, 11, 1), epoch), 366);
     });
+
+    test('days before launch are previews; launch day is #1', () {
+      expect(dailyNumber(DateTime.utc(2026, 10, 31, 23, 59), epoch), 0);
+      expect(dailyTag(dailyNumber(DateTime.utc(2026, 10, 11), epoch)), 'Preview');
+      expect(dailyTag(0), 'Preview');
+      expect(dailyTag(1), '#1');
+      expect(dailyTag(42), '#42');
+    });
   });
 
   group('same date → identical game', () {

@@ -7,12 +7,13 @@ RunResult result({
   List<ScoreMark> timeline = const [],
   int rewinds = 0,
   bool ranked = true,
+  int dailyNumber = 42,
 }) =>
     RunResult(
       mode: GameMode.daily,
       ranked: ranked,
       seed: 1,
-      dailyNumber: 42,
+      dailyNumber: dailyNumber,
       score: score,
       foodEaten: 37,
       sheds: 5,
@@ -72,6 +73,11 @@ void main() {
           appName: 'Shedlock', tagline: 't');
       expect(text, startsWith('Shedlock #42 (practice) 🐍'));
       expect(text, contains('⏪ 1'));
+    });
+
+    test('days before launch share as a preview, not a negative number', () {
+      final text = buildShareText(result(dailyNumber: -20), appName: 'Shedlock', tagline: 't');
+      expect(text, startsWith('Shedlock Preview 🐍'));
     });
 
     test('thousands separators', () {

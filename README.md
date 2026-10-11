@@ -241,7 +241,7 @@ pixel style for the whole app.
 
 ## Release checklist
 
-- [ ] `AppConfig.dailyEpoch` set to the launch day (Daily #1).
+- [x] `AppConfig.dailyEpoch` set to launch day: 1 November 2026 (Daily #1). Earlier days show as "Preview".
 - [ ] Real AdMob app and unit IDs (Dart config + both native files), and a
       consent message set up in AdMob.
 - [ ] IAP products created in both stores; shop tested on a test track.
