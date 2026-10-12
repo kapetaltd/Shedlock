@@ -66,6 +66,11 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // Keep rules for classes R8 must not strip (see the file).
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
