@@ -13,9 +13,17 @@ import 'package:flutter/foundation.dart';
 ///   projectId         ← project_info.project_id
 ///   storageBucket     ← project_info.storage_bucket
 ///
-/// While [android] is null, analytics events are only printed to the log.
+/// While a platform's options are null, analytics events are only printed
+/// to the log there.
 class FirebaseConfig {
-  static const FirebaseOptions? android = null;
+  /// Firebase project "shedlock-b885f" (Kapeta), app com.kapeta.shedlock.
+  static const FirebaseOptions? android = FirebaseOptions(
+    apiKey: 'AIzaSyD2cn3THBZluxd1kaL8zXKmCsn8_6VnR3k',
+    appId: '1:448565260393:android:0fea7d0f5e7ca25d6c72f8',
+    messagingSenderId: '448565260393',
+    projectId: 'shedlock-b885f',
+    storageBucket: 'shedlock-b885f.firebasestorage.app',
+  );
 
   /// Add when Shedlock is registered in Firebase for iOS.
   static const FirebaseOptions? ios = null;

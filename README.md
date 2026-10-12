@@ -246,7 +246,7 @@ pixel style for the whole app.
 - [x] AdMob Android: app ID and live ad units set.
 - [ ] AdMob iOS IDs (if launching on iOS); GDPR consent message in AdMob.
 - [ ] IAP products created in both stores; shop tested on a test track.
-- [ ] Firebase values in `lib/config/firebase_config.dart`.
+- [x] Firebase Android values in `lib/config/firebase_config.dart` (iOS later).
 - [x] Bundle ID set: `com.kapeta.shedlock`.
 - [ ] Upload keystore + `android/key.properties`; version bumped.
 - [ ] Privacy policy URL (required by AdMob, Play and the App Store) and the
