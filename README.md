@@ -249,7 +249,8 @@ pixel style for the whole app.
 - [x] Firebase Android values in `lib/config/firebase_config.dart` (iOS later).
 - [x] Bundle ID set: `com.kapeta.shedlock`.
 - [ ] Upload keystore + `android/key.properties`; version bumped.
-- [ ] Privacy policy URL (required by AdMob, Play and the App Store) and the
+- [x] Privacy policy: https://www.kapetalabs.com/shedlock/privacy (linked in Settings).
+- [ ] Privacy policy URL entered in Play Console and AdMob, and the
       Play "Data safety" / App Store privacy forms. The app uses advertising
       ID, analytics and purchase history.
 - [ ] Content rating questionnaire. Ads are shown, so declare "contains ads".

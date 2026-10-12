@@ -18,6 +18,7 @@ void main() {
     await tester.pumpWidget(env.app(const SettingsScreen()));
     await tester.pump();
     expect(find.text('Privacy options'), findsNothing);
+    expect(find.text('Privacy policy'), findsOneWidget, reason: 'Google Play requires an in-app link');
 
     await tester.tap(find.text('Sound'));
     await tester.pump();

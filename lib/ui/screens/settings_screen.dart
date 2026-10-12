@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/app_config.dart';
 import '../../services/services.dart';
@@ -28,6 +29,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     PackageInfo.fromPlatform().then((info) {
       if (mounted) setState(() => _version = '${info.version} (${info.buildNumber})');
     }).catchError((Object _) {});
+  }
+
+  Future<void> _open(Uri uri) async {
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } on Object catch (e) {
+      debugPrint('[settings] could not open $uri: $e');
+    }
   }
 
   @override
@@ -70,6 +79,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 12),
                   ],
                   AppButton(label: 'Restore purchases', compact: true, onPressed: services.iap.restore),
+                  const SizedBox(height: 12),
+                  AppButton(
+                    label: 'Privacy policy',
+                    compact: true,
+                    onPressed: () => _open(Uri.parse(AppConfig.privacyPolicyUrl)),
+                  ),
                   const SizedBox(height: 28),
                   const Txt('How to play', role: TextRole.heading),
                   const SizedBox(height: 12),
@@ -86,6 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Txt(
                     '${AppConfig.appName} ${_version.isEmpty ? '' : 'v$_version'}\n'
                     '${AppConfig.tagline}\n\n'
+                    'Support: ${AppConfig.supportEmail}\n\n'
                     'Fonts: Nunito and Press Start 2P (SIL Open Font License)\n'
                     'Sounds and art: original',
                     role: TextRole.caption,
