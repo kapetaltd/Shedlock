@@ -17,7 +17,7 @@ import 'package:flutter/foundation.dart';
 /// to the log there.
 class FirebaseConfig {
   /// Firebase project "shedlock-b885f" (Kapeta), app com.kapeta.shedlock.
-  static const FirebaseOptions? android = FirebaseOptions(
+  static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyD2cn3THBZluxd1kaL8zXKmCsn8_6VnR3k',
     appId: '1:448565260393:android:0fea7d0f5e7ca25d6c72f8',
     messagingSenderId: '448565260393',
