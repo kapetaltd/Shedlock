@@ -141,20 +141,15 @@ The rules are in `lib/core/monetization/ad_policy.dart` and the numbers are in
 `MonetizationConfig`.
 
 ### Firebase Analytics
-1. Create a Firebase project and add an Android app (package
-   `com.kapeta.shedlock`) and an iOS app (bundle ID `com.kapeta.shedlock`).
-2. Download `google-services.json` → `android/app/` and
-   `GoogleService-Info.plist` → `ios/Runner/` (add it to the Runner target in
-   Xcode).
-3. Android: add the Google Services Gradle plugin:
-   - `android/settings.gradle.kts`, inside `plugins {}`:
-     `id("com.google.gms.google-services") version "<latest 4.x>" apply false`
-   - `android/app/build.gradle.kts`, inside `plugins {}`:
-     `id("com.google.gms.google-services")`
+1. Create a Firebase project (Kapeta account) with Google Analytics enabled,
+   and add an Android app with package `com.kapeta.shedlock` (and an iOS app
+   with bundle ID `com.kapeta.shedlock` when needed).
+2. Copy the five values from the downloaded `google-services.json` into
+   `lib/config/firebase_config.dart` (the file says which field is which).
+   No Gradle plugin or config file is needed in the build;
+   `google-services.json` is git-ignored.
 
-   (Alternatively run `flutterfire configure`.)
-
-Without these files the app still runs, and events are printed to the debug
+Until those values are filled in the app still runs, and events are printed to the debug
 log. Events logged: `game_session_start`, `run_start`, `run_end`,
 `daily_shared`, `ad_shown`, `ad_rewarded`, `iap_purchase`, `streak_length`
 (see `lib/core/analytics/events.dart`). `game_session_start` is used because
@@ -251,7 +246,7 @@ pixel style for the whole app.
 - [x] AdMob Android: app ID and live ad units set.
 - [ ] AdMob iOS IDs (if launching on iOS); GDPR consent message in AdMob.
 - [ ] IAP products created in both stores; shop tested on a test track.
-- [ ] Firebase config files added (and the Gradle plugin on Android).
+- [ ] Firebase values in `lib/config/firebase_config.dart`.
 - [x] Bundle ID set: `com.kapeta.shedlock`.
 - [ ] Upload keystore + `android/key.properties`; version bumped.
 - [ ] Privacy policy URL (required by AdMob, Play and the App Store) and the

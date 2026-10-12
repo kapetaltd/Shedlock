@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app.dart';
+import 'config/firebase_config.dart';
 import 'services/ads_service.dart';
 import 'services/analytics_service.dart';
 import 'services/feedback_service.dart';
@@ -73,12 +74,16 @@ Future<void> _background(String name, Future<void> task) async {
   }
 }
 
-/// Firebase needs google-services.json / GoogleService-Info.plist (see
-/// README). Without them the app runs with analytics printed to the log.
+/// Firebase settings live in config/firebase_config.dart. Until they are
+/// filled in, the app runs with analytics printed to the log.
 Future<AnalyticsService> _initAnalytics() async {
-  if (!_mobile) return const DebugAnalyticsService();
+  final options = FirebaseConfig.current;
+  if (!_mobile || options == null) {
+    if (_mobile) debugPrint('[analytics] Firebase not configured; events are printed to the log');
+    return const DebugAnalyticsService();
+  }
   try {
-    await Firebase.initializeApp().timeout(const Duration(seconds: 5));
+    await Firebase.initializeApp(options: options).timeout(const Duration(seconds: 5));
     return FirebaseAnalyticsService(FirebaseAnalytics.instance);
   } on Object catch (e) {
     debugPrint('[analytics] Firebase not configured, events will only be printed: $e');
