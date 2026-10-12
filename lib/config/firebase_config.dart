@@ -2,8 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
 /// Firebase project settings, so no google-services.json or Gradle plugin is
-/// needed. These identify the app to Firebase; they are not secrets (Firebase
-/// ships them inside every app).
+/// needed. On Android the same values are also in
+/// android/app/src/main/res/values/firebase.xml, where Firebase Analytics
+/// reads them (a test checks the two match). These identify the app to
+/// Firebase; they are not secrets (Firebase ships them inside every app).
 ///
 /// Copy them from android/app/google-services.json (Firebase console →
 /// Project settings → Your apps → Shedlock Android):
