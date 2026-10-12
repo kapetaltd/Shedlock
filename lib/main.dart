@@ -25,6 +25,11 @@ bool get _mobile =>
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Only fast, local work happens before the first frame. Anything that
+  // talks to Google Play, Firebase or the audio system runs after runApp,
+  // with a timeout, so a slow or missing service (an emulator without the
+  // Play Store, no network, a stuck billing connection) can never leave
+  // the app on its splash screen.
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final storage = await PrefsStorageService.create();
   final analytics = await _initAnalytics();
@@ -33,25 +38,39 @@ Future<void> main() async {
   final IapService iap = _mobile && !_fakeStore
       ? StoreIapService(storage: storage, analytics: analytics)
       : FakeIapService(storage: storage, analytics: analytics);
-
-  await SessionService(storage: storage, analytics: analytics, clock: DateTime.now).start();
-  await iap.init();
   final sound = FlameSoundPlayer();
-  await sound.preload();
 
-  runApp(ShedlockApp(
-    storage: storage,
-    ads: ads,
-    share: const NativeShareService(),
-    analytics: analytics,
-    iap: iap,
-    sound: sound,
-    haptics: const SystemHaptics(),
-  ));
+  runApp(
+    ShedlockApp(
+      storage: storage,
+      ads: ads,
+      share: const NativeShareService(),
+      analytics: analytics,
+      iap: iap,
+      sound: sound,
+      haptics: const SystemHaptics(),
+    ),
+  );
 
-  // After the first frame: the consent form (where required) and ad
-  // preloading must not delay startup.
-  unawaited(ads.init());
+  unawaited(
+    _background(
+      'session',
+      SessionService(storage: storage, analytics: analytics, clock: DateTime.now).start(),
+    ),
+  );
+  unawaited(_background('store', iap.init()));
+  unawaited(_background('sound', sound.preload()));
+  // The consent form (where required) and ad preloading.
+  unawaited(_background('ads', ads.init()));
+}
+
+/// Runs a start-up task without blocking the app; logs failures and hangs.
+Future<void> _background(String name, Future<void> task) async {
+  try {
+    await task.timeout(const Duration(seconds: 20));
+  } on Object catch (e) {
+    debugPrint('[startup] $name did not finish: $e');
+  }
 }
 
 /// Firebase needs google-services.json / GoogleService-Info.plist (see
@@ -59,7 +78,7 @@ Future<void> main() async {
 Future<AnalyticsService> _initAnalytics() async {
   if (!_mobile) return const DebugAnalyticsService();
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp().timeout(const Duration(seconds: 5));
     return FirebaseAnalyticsService(FirebaseAnalytics.instance);
   } on Object catch (e) {
     debugPrint('[analytics] Firebase not configured, events will only be printed: $e');
