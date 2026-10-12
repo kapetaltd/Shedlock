@@ -21,7 +21,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.kapetaltd.shedlock"
+    namespace = "com.kapeta.shedlock"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -32,7 +32,7 @@ android {
 
     defaultConfig {
         // Placeholder bundle ID: see README "Changing the bundle ID".
-        applicationId = "com.kapetaltd.shedlock"
+        applicationId = "com.kapeta.shedlock"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

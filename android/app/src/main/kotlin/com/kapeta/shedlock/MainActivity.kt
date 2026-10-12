@@ -1,4 +1,4 @@
-package com.kapetaltd.shedlock
+package com.kapeta.shedlock
 
 import io.flutter.embedding.android.FlutterActivity
 

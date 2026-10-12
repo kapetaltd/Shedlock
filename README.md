@@ -142,7 +142,7 @@ The rules are in `lib/core/monetization/ad_policy.dart` and the numbers are in
 
 ### Firebase Analytics
 1. Create a Firebase project and add an Android app (package
-   `com.kapetaltd.shedlock`) and an iOS app (bundle ID `com.kapetaltd.shedlock`).
+   `com.kapeta.shedlock`) and an iOS app (bundle ID `com.kapeta.shedlock`).
 2. Download `google-services.json` → `android/app/` and
    `GoogleService-Info.plist` → `ios/Runner/` (add it to the Runner target in
    Xcode).
@@ -163,14 +163,14 @@ retention report, or cohorts on `game_session_start`.
 
 ## Changing the bundle ID
 
-The app ID is `com.kapetaltd.shedlock` on both platforms (it replaced the
+The app ID is `com.kapeta.shedlock` on both platforms (it replaced the
 `com.example.shedlock` placeholder). Google Play never lets it change after the
 first upload. If you ever need a different one before then, for example
 `com.yourstudio.shedlock`:
 
 **Android**
 1. `android/app/build.gradle.kts`: set both `namespace` and `applicationId`.
-2. Move `android/app/src/main/kotlin/com/kapetaltd/shedlock/MainActivity.kt` to
+2. Move `android/app/src/main/kotlin/com/kapeta/shedlock/MainActivity.kt` to
    the matching folder (`.../com/yourstudio/shedlock/`) and change its
    `package` line.
 3. If Firebase is set up, re-download `google-services.json` for the new ID.
@@ -252,7 +252,7 @@ pixel style for the whole app.
 - [ ] AdMob iOS IDs (if launching on iOS); GDPR consent message in AdMob.
 - [ ] IAP products created in both stores; shop tested on a test track.
 - [ ] Firebase config files added (and the Gradle plugin on Android).
-- [x] Bundle ID set: `com.kapetaltd.shedlock`.
+- [x] Bundle ID set: `com.kapeta.shedlock`.
 - [ ] Upload keystore + `android/key.properties`; version bumped.
 - [ ] Privacy policy URL (required by AdMob, Play and the App Store) and the
       Play "Data safety" / App Store privacy forms. The app uses advertising
