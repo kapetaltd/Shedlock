@@ -1,0 +1,131 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shedlock/core/core.dart';
+import 'package:shedlock/game/shedlock_game.dart';
+import 'package:shedlock/ui/theme/app_theme.dart';
+import 'package:shedlock/ui/widgets/slice_grid.dart';
+
+import '../core/helpers.dart';
+import '../support/fonts.dart';
+
+/// Plays a bot run until the board shows shed walls and a runner.
+RunSession interestingRun() {
+  const cfg = GameConfig(runnerSpawnPercent: 100, runnerMinNormalFood: 1);
+  for (var seed = 1; seed < 200; seed++) {
+    final s = RunSession(mode: GameMode.endless, seed: seed, config: cfg);
+    final bot = Bot(shedEvery: 0);
+    var shedAt = -1;
+    while (!s.isOver && s.state.tick < 3000) {
+      final st = s.state;
+      final input = bot.decide(st);
+      if (input.turn != null) s.turn(input.turn!);
+      if (shedAt < 0 && st.length >= 9) {
+        s.requestShed();
+        shedAt = st.tick;
+      }
+      s.tick();
+      final now = s.state;
+      if (shedAt > 0 &&
+          now.tick - shedAt > 12 &&
+          now.shedWalls.isNotEmpty &&
+          now.foods.any((f) => f.isRunner) &&
+          now.length >= 5) {
+        return s;
+      }
+    }
+  }
+  throw StateError('no interesting run found');
+}
+
+void main() {
+  setUpAll(loadAppFonts);
+  tearDown(() => Palette.apply(AppTheme.paper));
+
+  for (final theme in [AppTheme.paper, AppTheme.dusk, AppTheme.lime]) {
+    testWidgets('renders a mid-game board with walls, runner and effects (${theme.name})', (tester) async {
+      Palette.apply(theme);
+      final session = interestingRun();
+      final game = ShedlockGame(session: session);
+      final key = GlobalKey();
+      await tester.binding.setSurfaceSize(const Size(400, 600));
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: key,
+          child: ColoredBox(
+            color: Palette.background,
+            child: GameWidget(game: game),
+          ),
+        ),
+      );
+      await tester.pump();
+      final s = session.state;
+      game.effects.handle([FoodEaten(Food(id: -1, pos: s.head, kind: FoodKind.normal, spawnTick: 0), 14)]);
+      game.update(0.1);
+      await tester.pump(const Duration(milliseconds: 16));
+
+      expect(tester.takeException(), isNull);
+      expect(s.shedWalls, isNotEmpty);
+
+      final out = Platform.environment['SHEDLOCK_SHOTS'];
+      if (out != null) {
+        await tester.runAsync(() async {
+          final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+          final image = await boundary.toImage(pixelRatio: 2);
+          final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+          File('$out/render-midgame-${theme.name}.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+        });
+      }
+    });
+  }
+
+  testWidgets('renders the board while dying (modern desaturate) without errors', (tester) async {
+    final session = RunSession.endless(seed: 4);
+    final game = ShedlockGame(session: session);
+    await tester.pumpWidget(GameWidget(game: game));
+    await tester.pump();
+    game.turn(session.state.heading);
+    for (var i = 0; i < 400 && !session.isOver; i++) {
+      game.update(0.05);
+    }
+    expect(game.diedAt, isNotNull);
+    game.update(0.3);
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('renders the daily summary grid for every slice kind', (tester) async {
+    final key = GlobalKey();
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: RepaintBoundary(
+            key: key,
+            child: ColoredBox(
+              color: Palette.background,
+              child: const Padding(
+                padding: EdgeInsets.all(8),
+                child: SliceGrid(slices: SliceKind.values, cell: 40),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final out = Platform.environment['SHEDLOCK_SHOTS'];
+    if (out != null) {
+      await tester.runAsync(() async {
+        final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+        final image = await boundary.toImage(pixelRatio: 2);
+        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+        File('$out/render-slices.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+      });
+    }
+  });
+}
