@@ -228,6 +228,14 @@ dart run flutter_launcher_icons            # → Android mipmaps + iOS AppIcon
 dart run flutter_native_splash:create      # → native launch screens (light + dark)
 ```
 
+Store listing graphics (icon, feature graphic, captioned screenshots) and the
+listing text are in [`docs/store/`](docs/store/listing.md). To regenerate the
+graphics from the current app:
+```sh
+flutter test tool/store_assets_test.dart   # raw screens → build/store/raw
+python3 tool/store_assets.py               # framed PNGs → build/store (then copy to docs/store)
+```
+
 The logo is drawn by `LogoMarkPainter` in `lib/ui/widgets/logo_art.dart` (the
 retro pixel version is in the same file). Edit it there and regenerate, so the
 in-app logo and the app icon stay identical.
